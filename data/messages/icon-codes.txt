@@ -1,0 +1,33 @@
+0,A button
+1,B button
+3,Wiimote
+4,Nunchuk
+7,Power Star
+8,Launch Star
+9,Pull Star
+10,Onscreen pointer
+11,Star Bit
+12,Coconut
+14,Star Bunny
+15,Control Stick
+16,x
+17,Coin
+18,Mario
+19,D-Pad
+20,Blue Star Chip
+21,Yellow Star Chip
+23,- button
+24,+ button
+25,Z button
+26,Silver Star
+27,Grand Star
+28,Luigi
+29,Player 2 pointer
+30,Purple Coin
+32,Crown
+33,Cannon crosshairs
+41,Mail letter
+43,Player head
+49,1-Up Mushroom
+50,Life Mushroom
+52,Black Luma

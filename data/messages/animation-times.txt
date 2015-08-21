@@ -1,0 +1,421 @@
+# I've been watching you from here. ...
+# 7959 (0 progress) -> can start pressing A at 8055 -> 8059 camera change (8060 if press A starting at 8056). 8055 - 7959 = 96
+HeavensDoorMysteriousZone_Rosetta001 = 96
+
+# My name is Rosalina. ...
+# 8230 (0 progress) -> can start pressing A at 8326 -> 8330 camera change (8331 if press A starting at 8327). 8326 - 8230 = 96
+HeavensDoorMysteriousZone_Rosetta002 = 96
+
+# Luma can give you this power. ...
+# 8591 (0 progress) -> can start pressing A at 8687 -> 8694 (first bit of camera movement I could see) -> 8712 (Rosetta closes her eyes for an incantation). 8687 - 8591 = 96
+HeavensDoorMysteriousZone_Rosetta003 = 96
+
+# Disaster has struck us, just as ...
+# 9305 (0 progress) -> can start pressing A at 9401 -> 9669 (yellow post on the bottom left of the screen goes completely out of view). 9401 - 9305 = 96
+HeavensDoorMysteriousZone_Rosetta004 = 96
+
+# Get me out of here! One of ...
+# No delay for JP
+
+# We've been waiting for you!
+# 15811 (0 progress) -> 15873 (grand star machine comes into view) -> 15963 (next message gets 1 progress)
+# No delay for JP
+# <Same for other messages here>
+
+
+
+# The beacon is lit again! ...
+# 3213 (0 progress) -> can start pressing A at 3309 -> 3313 (camera change) -> 3314 (Rosetta and Luigi teleport). 3309 - 3213 = 96
+AstroGalaxy_ButlerExplain011 = 96
+
+# Oh, thank you for saving ...
+# 3334 (0 progress) -> can start pressing A at 3430 -> 3434 (camera change). 3428 - 3334 = 96
+AstroGalaxy_Rosetta101 = 96
+
+# Welcome to the Comet Observatory. ...
+# 3515 (0 progress) -> can start pressing A at 3731 -> 3764 (completely faded to black). 3731 - 3515 = 216
+AstroGalaxy_Rosetta102 = 216
+
+# <Slow text>
+# No delay for JP
+
+# Please, I have a request...
+# 4578 (0 progress) -> can start pressing A at 4794 -> 4798 (camera change). 4794 - 4578 = 216
+AstroGalaxy_Rosetta103 = 216
+
+# This observatory uses <Power Star icon> Star Power to project ...
+# 4819 (0 progress) -> can start pressing A at 4915 -> 4919 (camera change). 4915 - 4819 = 96
+AstroGalaxy_Rosetta104 = 96
+
+# And...there is a chance we can use ...
+# 4940 (0 progress) -> can start pressing A at 5036 -> 5040 (camera change). 5036 - 4940 = 96
+AstroGalaxy_Rosetta105 = 96
+
+# These round rooms are called domes. ...
+# 5061 (0 progress) -> can start pressing A at 5157 -> 5161 (camera change). 5157 - 5061 = 96
+AstroGalaxy_Rosetta107 = 96
+
+# Please go to the Terrace and try ...
+# 5182 (0 progress) -> can start pressing A at 5398 -> 5402 (camera change). 5398 - 5182 = 216
+AstroGalaxy_Rosetta106 = 216
+
+# If we do that, ...
+# 5423 (0 progress) -> can start pressing A at 5519 -> 5523 (camera change). 5519 - 5423 = 96
+AstroGalaxy_ButlerExplain012 = 96
+
+
+
+# Welcome! This dome acts as an eye ...
+# No delay for JP
+
+# These are the galaxies that can be observed from ...
+# No delay for JP
+
+# Yes, it's undeniable! We're detecting ...
+# 1608 (0 progress) -> can start pressing A at 1704 -> 1708 (black luma starts to move) -> 1768 (black luma's sparkles disappear). 1704 - 1608 = 96
+AstroDome_Butler002 = 96
+
+
+
+# Those <icon>s are Star Bits. To Lumas, they are ...
+# Custom short text: 1170 (0 text progress) -> 1178-1266 (start pressing A) -> 1360 (smoke of appearing star bits). 1267 -> 1361. 1290 -> 1384.
+# 1266 - 1170 = 96
+AstroDome_Butler012 = 96
+
+# Why don't we try it out? ...
+# JP: 1601 (0 text progress) -> 1633-1697 (start pressing A) -> 1760 (completely black). 1698 -> 1761. 1700 -> 1763.
+# 1697 - 1601 = 96
+AstroDome_Butler013 = 96
+
+# Mmmm, tasty! Let's call those ...
+# JP: 2512 (0 text progress) -> 2551-2608 (start pressing A) -> 2643 (camera change). 2610 -> 2645.
+# 2608 - 2512 = 96
+AstroDome_Butler015 = 96
+
+# You can also shoot them at enemies ...
+# JP: 2665 (0 text progress) -> 2739-2761 (start pressing A) -> 2824 (completely black). 2762 -> 2825.
+# 2761 - 2665 = 96
+AstroDome_Butler016 = 96
+
+
+
+# Well done, brave explorer! ...
+# JP: 1181 (0 text progress) -> 1273-1277 (start pressing A) -> 1340 (completely black). 1278 -> 1341. 1283 -> 1346.
+# 1277 - 1181 = 96
+AstroDome_Butler003 = 96
+
+
+
+# Luigi... Your name is Luigi, isn't it? ...
+# JP: 1187 (0 text progress) -> 1306 (start pressing A) -> 1377 (next message's text bubble crosses well into Rosalina's crown). 1307 -> 1378.
+# So no delay.
+
+# Your friends are waiting for you in the Garage. ...
+# JP: 1418 (0 text progress) -> 1478 (start pressing A) -> 1567 (completely black). 1479 -> 1568.
+# So no delay.
+
+
+
+# We have discovered an enemy base in... (Engine Room)
+# JP: 979 (0 progress) -> press A at 1029-1075 -> completely black at 1138. 1076 -> 1139.
+# Quick Kitchen test also showed a minimum 159 frame difference from 0 progress to completely black.
+# 1075 - 979 = 96
+AstroDome_Butler006 = 96
+
+
+
+# Wahahaha! You made it! ...
+# No delay for JP, or a very short made up message
+
+
+
+# That ball of flame represents the ...
+# JP: 2181 (0 text progress) -> 2241 (start pressing A) -> 2302 (camera change). 2242 -> 2303.
+# So no delay.
+
+# The Comet Observatory can use that power ...
+# JP: 2323 (0 text progress) -> 2354 (start pressing A) -> 2415 (camera change). 2355 -> 2416.
+# So no delay.
+
+# Once all of the power is restored ...
+# JP: 2436 (0 text progress) -> 2464 (start pressing A) -> 2553 (completely black). 2465 -> 2554.
+# So no delay.
+
+# Oh! The power is on in a new dome!
+# JP: 2669 (0 text progress) -> 2689-2765 (start pressing A) -> 2828 (completely black). 2766 -> 2829. 2770 -> 2833.
+# 2765 - 2669 = 96
+AstroGalaxy_ButlerMap002 = 96
+
+# The newly opened dome is called the Fountain. ...
+# Custom short message: 3018 (0 text progress) -> 3036-3114 (start pressing A) -> 3177 (completely black). 3115 -> 3178.
+# 3114 - 3018 = 96
+AstroGalaxy_ButlerMap003 = 96
+
+
+
+# It seems that a Prankster Comet ...
+# JP: 1096 (0 text progress) -> 1119 (start pressing A) -> 1181 (Rosalina opens eyes and shifts pose). 1120 -> 1182.
+# So no delay.
+
+# Prankster Comets have very strange effects ...
+# JP: 1757 (0 text progress) -> 1832 (start pressing A) -> 1921 (completely black). 1833 -> 1922.
+# So no delay.
+
+
+
+# Enemy base spotted! We're detecting massive energy spikes! ... (Bedroom)
+# 1070 (0 text progress) -> 1131-1166 (start pressing A) -> 1229 (completely black). 1170 -> 1233.
+# Quick Fountain test also showed a minimum 159 frame difference from 0 progress to completely black.
+# 1166 - 1070 = 96
+AstroDome_Butler007 = 96
+
+
+
+# BWAHAHAHA! You finally made it!
+# 4518 (0 progress) -> can start pressing A at 4764 -> 4768 (camera change). 4764 - 4518 = 246
+KoopaBattleVs1BossZone_DemoKoopaVs1Start000 = 246
+
+# Just in time for me to stomp you into space bits!
+# 4880 (0 progress) -> can start pressing A at 5126 -> 5131 (camera moves) -> 5157 (Mario is visible). 5126 - 4880 = 246
+KoopaBattleVs1BossZone_DemoKoopaVs1Start001 = 246
+
+# WHAT?! HOW... ...
+# 9392 (0 progress) -> can start pressing A at 9728 -> 9878 (Bowser disappears). 9728 - 9392 = 336
+# Tested again on Dolphin 7365: 9551 -> 9887 -> 10037
+KoopaBattleVs1BossZone_DemoKoopaVs1Down000 = 336
+
+
+
+# You rescued another Grand Star, and power has returned to ...
+# JP: 2327 (0 text progress) -> 2413 (start pressing A) -> 2474 (camera change). 2414 -> 2475.
+# So no delay.
+
+# The villain who kidnapped your special one took her ...
+# JP: 2495 (0 text progress) -> 2535 (start pressing A) -> 2596 (camera change). 2536 -> 2597.
+# So no delay.
+
+# Once our Star Power is restored, the observatory will be able ...
+# JP: 2617 (0 text progress) -> 2674 (start pressing A) -> 2763 (camera change). 2675 -> 2764.
+# So no delay.
+
+
+
+# Thanks to you and your friends, all of ...
+# JP: 2305 (0 text progress) -> 2341 (start pressing A) -> 2408 (top of next text bubble overlaps with Engine Room teleporter). 2342 -> 2409.
+# So no delay.
+
+# Once the Engine Room on the upper ...
+# JP: 2423 (0 text progress) -> 2487 (start pressing A) -> 2548 (camera change). 2488 -> 2549.
+# So no delay.
+
+# And you will be able to fly to your ...
+# JP: 2569 (0 text progress) -> 2594 (start pressing A) -> 2683 (completely black). 2595 -> 2684.
+# So no delay.
+
+
+
+# WHAA--?! IT'S YOU! ...
+# 5645 (0 text progress) -> 5711-5891 (start pressing A) -> 5895 (camera change). 5892 -> 5896.
+# 5891 - 5645 = 246
+KoopaBattleVs2BossZone_DemoKoopaVs2Start000 = 246
+
+# BWAHAHAHA! Not bad! ...
+# JP: 11170 (0 text progress) -> 11291-11505 (start pressing A) -> 11656 (Bowser disappears). 11506 -> 11657. Double checked this.
+# 11505 - 11170 = 335.
+KoopaBattleVs2BossZone_DemoKoopaVs2Down000 = 335
+
+
+
+# We have ascertained the location of ...
+# JP: 2692 (0 text progress) -> 2738 (start pressing A) -> 2799 (camera change). 2739 -> 2800.
+# So no delay.
+
+# That number represents the ...
+# JP: 3060 (0 text progress) -> 3130 (start pressing A) -> 3191 (camera change). 3131 -> 3192.
+# So no delay.
+
+# And when it reaches zero, ...
+# JP: 3212 (0 text progress) -> 3273 (start pressing A) -> 3304 (completely black). 3274 -> 3305.
+# So no delay.
+
+
+
+# If I give up any more Grand Stars, ...
+# No delay for JP
+
+
+
+# Now that we've recovered so many Grand Stars, the beacon is almost too bright to look at.
+# JP: 2622 (0 progress) -> optimal pressing A at 2656 -> 2717 (camera change). There's a 61 frame gap till camera change even when you press A much later.
+# Custom msg: -> press A at 2633 -> 2694, again a 61 frame gap
+# So basically no delay
+
+# Once the observatory works as a starship again, ...
+# JP: 2742 (0 progress) -> optimal pressing A at 2818 -> completely black at 2907. When A is 2 frames later, black is 2 frames later.
+# So looks like no delay again. Probably scripted to be 1 second after message end that something happens, the fadeout start in this case.
+
+
+
+# The Comet Observatory has full power! Now it can fly ...
+# JP: 1293 (0 text progress) -> 1326 (start pressing A) -> 1389 (camera change). 1327 -> 1390.
+# So no delay.
+
+# It's time. Do you want to go ...
+# (Choice afterward, pretty sure no delay)
+
+# All right, then. Off we go!
+# JP: 1939 (0 text progress) -> 1951 (start pressing A) -> 1982 (completely black). 1952 -> 1983.
+# So no delay.
+
+
+
+# Looking for Princess Peach? Too bad! ...
+# JP: 3442 (0 text progress) -> 3483-3618 (start pressing A) -> 3623 (camera change). 3619 -> 3624.
+# 3618 - 3442 = 176
+KoopaBattleVs3BossZone_DemoKoopaMeetPeach000 = 176
+
+# Finally! You got here just in time to ...
+# JP: 5845 (0 text progress) -> 5907-6121 (start pressing A) -> 6126 (camera change). 6122 -> 6127.
+# 6121 - 5845 = 276
+KoopaBattleVs3BossZone_DemoKoopaVs3Start000 = 276
+
+# From this galaxy, I'll rule a great galactic empire ...
+# JP: 6457 (0 text progress) -> 6587-6733 (start pressing A) -> 6740 (first camera movement) -> 6764 (Luigi visible). 6734 -> 6741 -> 6765.
+# 6733 - 6457 = 276
+KoopaBattleVs3BossZone_DemoKoopaVs3Start001 = 276
+
+
+
+# Do you hear the baby stars? ...
+# JP: 11042 (0 text progress) -> 11084-11498 (start pressing A) -> 11502 (camera change). 11499 -> 11503.
+# 11498 - 11042 = 456
+EpilogueDemoStage_Rosetta001 = 456
+
+# When stars die, they turn to stardust and ...
+# JP: 11874 (0 text progress) -> 11933-11970 (start pressing A) -> 11974 (camera change). 11971 -> 11975.
+# 11970 - 11874 = 96
+EpilogueDemoStage_Rosetta002 = 96
+
+# But the cycle never repeats itself in quite the same way...
+# JP: 12096 (0 text progress) -> 12118-12402 (start pressing A) -> 12406 (camera change). 12403 -> 12407.
+# 12402 - 12096 = 306
+EpilogueDemoStage_Rosetta003 = 306
+
+# So...you'll see.
+# JP: 12533 (0 text progress) -> 12540-12644 (start pressing A) -> 12828 (camera change after camera movement). 12645 -> 12829.
+# 12644 - 12533 = 111
+EpilogueDemoStage_Rosetta004 = 111
+
+
+
+# Welcome back! I knew you would return eventually.
+# JP: 83 (0 text progress) -> 119 (start pressing A) -> 184 (next message's bubble overlaps with her crown). 120 -> 185.
+# So no delay.
+
+# Please look down at your feet.
+# JP: 201 (0 text progress) -> 214 (start pressing A) -> 275 (camera change). 215 -> 276.
+# So no delay.
+
+# This number you see represents the number of Power Stars you need to access another world. ...
+# JP: 476 (0 text progress) -> 552 (start pressing A) -> 641 (completely black). 553 -> 642.
+# So no delay.
+
+
+
+# Welcome back...
+# JP: 973 (0 text progress) -> 985 (start pressing A) -> 1056 (next message's bubble goes well inside Rosalina's crown). 986 -> 1057.
+# So no delay.
+
+# I can see your twin from here. ...
+# JP: 1072 (0 text progress) -> 1134 (start pressing A) -> 1199 (next message's bubble goes into Starshroom). 1135 -> 1200.
+# So no delay.
+
+# And I'm sure he has a lot to tell you. ...
+# JP: 1216 (0 text progress) -> 1254 (start pressing A) -> 1313 (completely black). 1255 -> 1314.
+# So no delay.
+
+
+
+# Mr. Luiiiigiii! Check it out, I'm ...
+# JP: 958 (0 text progress) -> 1005 (start pressing A) -> 1007 (letter starts to fade in). 1006 -> 1008.
+# So no delay.
+
+# Hmmm, where is that place? ...
+# JP: 1110 (0 text progress) -> 1192 (start pressing A) -> 1202 (right side of next message's bubble extends past left edge of Luigi's hat). 1193 -> 1203.
+# So no delay.
+
+# To view a picture, ...
+# JP: 1215 (0 text progress) -> 1253 (start pressing A) -> 1284 (completely black). 1254 -> 1285.
+# So no delay.
+
+
+
+# You rescued a Green Power Star! ...
+# JP: 882 (0 text progress) -> 938 start pressing A -> 983 (Rosalina's eye no longer in view). 939 -> 984.
+# So no delay.
+
+# Ask the Green Lumas about them. ...
+# JP: 1020 (0 text progress) -> 1054 start pressing A -> 1113 (completely black). 1055 -> 1114.
+# So no delay.
+
+
+
+# You've managed to recover all of the Green Power Stars ...
+# JP: 890 (0 text progress) -> 924 (start pressing A) -> 995 (completely black). 925 -> 996.
+# So no delay.
+
+# Even I don't know what's waiting for you out there beyond the Green Launch Star.
+# JP: 1175 (0 text progress) -> 1212 (start pressing A) -> 1271 (completely black). 1213 -> 1272.
+# So no delay.
+
+
+
+# This planet... ...
+# JP: 1518 (0 text progress) -> 1551-1734 (start pressing A) -> 1738 (camera change). 1735 -> 1739.
+# 1734 - 1518 = 216
+HeavensDoorMysteriousZone_Rosetta101 = 216
+
+# I looked forward to visiting this planet with the Lumas ...
+# JP: 1759 (0 text progress) -> 1786-1975 (start pressing A) -> 1979 (camera change). 1976 -> 1980.
+# 1975 - 1759 = 216
+HeavensDoorMysteriousZone_Rosetta102 = 216
+
+# The Luma that's been traveling with you may also ...
+# JP: 2000 (0 text progress) -> 2080-2336 (start pressing A) -> 2340 (camera change). 2337 -> 2341.
+# 2336 - 2000 = 336
+HeavensDoorMysteriousZone_Rosetta103 = 336
+
+# I'm traveling with them while they look for a place ...
+# JP: 1685 (0 text progress) -> 1718-1901 (start pressing A) -> 1935 (next message's bubble overlaps with crown). 1902 -> 1936.
+# 1901 - 1685 = 216
+HeavensDoorMysteriousZone_Rosetta104 = 216
+
+# But I never thought all this would happen...
+# JP: 1952 (0 text progress) -> 1970-2143 (start pressing A) -> 2176 (completely black). 2144 -> 2177.
+# 2143 - 1952 = 191
+HeavensDoorMysteriousZone_Rosetta105 = 191
+
+# Wow... Mama must really trust you. ...
+# JP: 2289 (0 text progress) -> 2349 (start pressing A) -> 2360 (purple coin bubbles appear). 2350 -> 2361.
+# So no delay.
+
+# If you grab all 100 Purple Coins here, then ...
+# JP: 2382 (0 text progress) -> 2416 (start pressing A) -> 2432 (next message's bubble's right side extends past the red Luma). 2417 -> 2433.
+# So no delay.
+
+# This is a Red Star. It holds ...
+# JP: 2448 (0 text progress) -> 2560 (start pressing A) -> 2571 (if you are holding the stick then you will see yourself start to move here). 2606 -> 2617.
+# So no delay.
+
+
+
+# We now have enough Star Power to go to another world. ...
+# JP: 1177 (0 text progress) -> 1234 (start pressing A) -> 1297 (camera change). 1235 -> 1298.
+# So no delay.
+
+# Are you prepared to ...
+# (Choice afterward, pretty sure no delay)
+
+# All right, then. Off we go!
+# JP: 1669 (0 text progress) -> 1681 (start pressing A) -> 1712 (completely black). 1682 -> 1713.
+# So no delay.

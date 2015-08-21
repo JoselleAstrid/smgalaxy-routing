@@ -1,0 +1,24 @@
+{
+    "Common_TicoFat002": {
+        "_type": "text",
+        "_placeholder": "<Number of star bits>",
+        "2 digit": "xx",
+        "3 digit": "xxx",
+        "4 digit": "xxxx"
+    },
+    "AstroGalaxy_TicoCommon001": {
+        "_type": "message",
+        "_placeholder": "<Galaxy name>",
+        "Rolling Gizmo": "GalaxyName_TamakoroExLv2Galaxy",
+        "Loopdeeswoop": "GalaxyName_SurfingLv2Galaxy",
+        "Bubble Blast": "GalaxyName_CubeBubbleExLv2Galaxy",
+        "Grand Finale": "GalaxyName_PeachCastleFinalGalaxy",
+        "Sweet Sweet": "GalaxyName_BeltConveyerExGalaxy",
+        "Sling Pod": "GalaxyName_CocoonExGalaxy",
+        "Drip Drop": "GalaxyName_TearDropGalaxy",
+        "Bigmouth": "GalaxyName_FishTunnelGalaxy",
+        "Sand Spiral": "GalaxyName_TransformationExGalaxy",
+        "Boo's Boneyard": "GalaxyName_TeresaMario2DGalaxy",
+        "Snow Cap": "GalaxyName_SnowCapsuleGalaxy"
+    }
+}

@@ -1,0 +1,107 @@
+body {
+  margin: 0;
+  
+  background-color: hsl(0, 0%, 7%);
+  color: hsl(0, 0%, 83%);
+  
+  font-family: Arial, sans-serif;
+}
+
+
+#route-textarea {
+  width: 500px;
+  height: 100px;
+}
+
+
+#left-pane {
+  display: inline-block;
+  max-width: 600px;
+}
+
+
+#route-table-container {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+
+table {
+  border-collapse: collapse;
+}
+th, td {
+  border: 1px solid white;
+  padding: 4px;
+}
+
+
+td.name-level {
+  color: hsl(60, 70%, 50%);
+}
+td.name-level-comet {
+  color: hsl(30, 70%, 50%);
+}
+td.name-action {
+  color: hsl(120, 60%, 70%);
+}
+td.name-event {
+  color: hsl(200, 60%, 70%);
+}
+
+
+td.item-frames:hover, tr.message-frames:hover {
+  background-color: hsl(0, 0%, 50%);
+  cursor: pointer;
+}
+tr.message-frames.skippable {
+  color: hsl(0, 0%, 50%);
+}
+tr.message-frames.skippable:hover {
+  background-color: hsl(0, 0%, 30%);
+}
+
+
+td.box-text {
+  /* Should be wide enough to fit a normal line of JP text */
+  width: 320px;
+}
+
+
+table#argset-fields {
+  display: inline-block;
+}
+
+
+#item-details {
+  display: inline-block;
+  vertical-align: top;
+  margin-left: 20px;
+  
+  max-width: 400px;
+  overflow-x: auto;
+  
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+#item-details div button {
+  background-color: hsl(0,0%,15%);
+  color: inherit;
+  border: 1px solid white;
+  border-radius: 5px;
+  margin: 4px;
+  font-size: 0.9rem;
+  
+  font-family: Arial, sans-serif;
+}
+#item-details div button:hover {
+  background-color: hsl(0,0%,50%);
+}
+
+
+span.mid-result {
+  text-decoration: underline;
+}
+span.final-result {
+  font-weight: bold;
+}

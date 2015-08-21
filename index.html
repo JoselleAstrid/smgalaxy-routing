@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+  
+<html lang="en">
+  
+  <head>
+    
+    <title>SMG Routing</title>
+    <meta charset="utf-8" />
+    
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/jquery-ui.min.js"></script>
+    
+    <script src="js/itemdetails.js"></script>
+    <script src="js/itemmessages.js"></script>
+    <script src="js/messages.js"></script>
+    <script src="js/main.js"></script>
+    
+    <link rel="stylesheet"
+          href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" type="text/css" media="screen"
+          href="main.css" />
+    
+  </head>
+  
+  
+  <body>
+  
+    <textarea id="route-textarea"></textarea>
+    
+    <table id="argset-fields"><tbody>
+      <tr>
+        <td class="argset-field-name">Language</td>
+          <!-- To be filled in via JS, which has info on available languages -->
+        <td><select id="set1-langCode"></select></td>
+        <td><select id="set2-langCode"></select></td>
+      </tr>
+      <tr>
+        <td class="argset-field-name">Character</td>
+        <td>
+          <select id="set1-character">
+            <option value="mario">Mario</option>
+            <option value="luigi">Luigi</option>
+          </select>
+        </td>
+        <td>
+          <select id="set2-character">
+            <option value="mario">Mario</option>
+            <option value="luigi">Luigi</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td class="argset-field-name">
+          Frames of human timing<br/>error per box</td>
+        <td><select id="set1-boxEndTimingError"></select></td>
+        <td><select id="set2-boxEndTimingError"/></select></td>
+      </tr>
+    </tbody></table>
+    
+    <select id="route-category">
+      <option value="Any%">Any%</option>
+      <option value="120 star">120 Star</option>
+    </select>
+    
+    <button type="button" id="route-button">Go</button>
+    
+    <hr/>
+    
+    <div id="route-status"></div>
+    <div id="left-pane">
+      <div id="route-table-container"></div>
+      <div id="message-details" style="display:none;"></div>
+    </div>
+    <div id="item-details"></div>
+    
+    <script type="text/javascript">
+      main.init(itemDetails, itemMessages, messages);
+    </script>
+    
+  </body>
+  
+</html>
