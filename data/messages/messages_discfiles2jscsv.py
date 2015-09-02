@@ -154,19 +154,6 @@ def handle_escape_sequence(escape_bytes, boxes, lookup, lang_code, message_id,
             luigi="System_PlayerName100",
         )
         
-        # TODO: Remove?
-        # if lang_code == 'us':
-        #     # Mario
-        #     add_box_chars(boxes[-1], 5, 'mario')
-        #     # Luigi
-        #     add_box_chars(boxes[-1], 5, 'luigi')
-        # elif lang_code == 'jp':
-        #     # マリオ
-        #     add_box_chars(boxes[-1], 3, 'mario')
-        #     # ルイージ
-        #     add_box_chars(boxes[-1], 4, 'luigi')
-        # else:
-        #     raise ValueError("Unsupported lang_code for this escape sequence")
     elif escape_bytes == b'\x05\x00\x00\x01\x00':
         text = '<Mr. Plaaayer naaame>'
         lookup['msg_in_msg'][message_id] = dict(
@@ -175,19 +162,6 @@ def handle_escape_sequence(escape_bytes, boxes, lookup, lang_code, message_id,
             luigi="System_PlayerName101",
         )
         
-        # TODO: Remove?
-        # if lang_code == 'us':
-        #     # Mr. Maaario
-        #     add_box_chars(boxes[-1], 11, 'mario')
-        #     # Mr. Luiiiigiii
-        #     add_box_chars(boxes[-1], 14, 'luigi')
-        # elif lang_code == 'jp':
-        #     # マリオさ～～ん
-        #     add_box_chars(boxes[-1], 7, 'mario')
-        #     # ルイージさ～～ん
-        #     add_box_chars(boxes[-1], 8, 'luigi')
-        # else:
-        #     raise ValueError("Unsupported lang_code for this escape sequence")
     elif escape_bytes[0] == 6:
         # A number. In general we don't know how many characters will be
         # added... it's message dependent and even case dependent beyond
@@ -212,10 +186,6 @@ def handle_escape_sequence(escape_bytes, boxes, lookup, lang_code, message_id,
                 lookup['msg_in_msg'][message_id] = d
             else:
                 raise ValueError("Unsupported numbers_names type: "+nn_type)
-            # TODO: Remove?
-            # cases = d[lang_code]
-            # for case_name, chars in cases.items():
-            #     add_box_chars(boxes[-1], chars, case_name)
         else:
             text = '<Number>'
     elif escape_bytes[0] == 7:
@@ -233,10 +203,6 @@ def handle_escape_sequence(escape_bytes, boxes, lookup, lang_code, message_id,
                 lookup['msg_in_msg'][message_id] = d
             else:
                 raise ValueError("Unsupported numbers_names type: "+nn_type)
-            # TODO: Remove?
-            # cases = d[lang_code]
-            # for case_name, chars in cases.items():
-            #     add_box_chars(boxes[-1], chars, case_name)
         else:
             text = '<Name>'
     elif escape_bytes == b'\x09\x00\x05':
@@ -413,67 +379,6 @@ def compute_message_frames(message, lookup):
         
     message['frames'] = frames
     message['frames_display'] = frames_display
-    
-    
-# TODO: Remove?
-# def compute_message_frames(
-#     box_lengths, message_text, forced_slow, animation_time):
-
-#     # Compute frames for the entire message, from start of first box's
-#     # frames (just before the 1st frame) to end of last box's frames.
-#     # Assume fast speed (holding A) for as long as possible.
-#     #
-#     # Note that we can't compute the final number of frames in general, due
-#     # to factors like box transition error. We'll just put in as much info as
-#     # we can to let another application determine the final number of frames.
-    
-#     d = dict()
-    
-#     if forced_slow:
-#         base = box_lengths[0]
-        
-#         for box_len in box_lengths[1:]:
-#             # At the end of the previous box, there's a minimum 2 frame delay
-#             # between the end of that text box and when this text box starts
-#             # with your A press.
-#             # The 1st frame is just a gap, and the 2nd frame comes from having
-#             # to press A for 2 frames.
-#             base += 2
-#             base += box_len
-#     else:
-#         # Holding A speeds up text scroll by 3x.
-#         base = math.ceil(box_lengths[0] / 3)
-        
-#         for box_len in box_lengths[1:]:
-#             # Same 2 frame gap, and...
-#             base += 2
-#             # The A press on the previous box required you to release A, and
-#             # it takes 12 frames of holding A before the text starts to speed
-#             # up. So the first 10 frames must be at slow speed.
-#             base += 10
-#             if box_len > 10:
-#                 base += math.ceil((box_len-10) / 3)
-#             else:
-#                 base += box_len
-                
-#     d['base'] = base
-    
-#     num_boxes = len(box_lengths)
-#     if num_boxes > 1:
-#         d['box_transitions'] = num_boxes - 1
-        
-#     additional_factors = []
-#     if "<Number>" in message_text:
-#         additional_factors.append("<Number>")
-#     if '<Name>' in message_text:
-#         additional_factors.append("<Name>")
-#     if additional_factors != []:
-#         d['additional_factors'] = additional_factors
-        
-#     if animation_time is not None:
-#         d['animation_time'] = animation_time
-        
-#     return d
     
     
 def message_frames_to_display(d):
@@ -770,42 +675,6 @@ def process_messages(bmg, lang_code, all_messages, lookup):
         m.pop('inf1_item')
         m.pop('text_pos')
         m.pop('text_offset')
-        
-        # TODO: Remove the below?
-        
-        # message_id = m['id']
-        # forced_slow = message_id in lookup['forced_slow']
-        # animation_time = lookup['animation_times'].get(message_id, None)
-        
-        # if len(message_cases) > 0:
-        #     frames = dict()
-        #     frames_disp_lines = []
-        #     for case_name in message_cases:
-        #         box_lengths = [
-        #             box[case_name]['length']
-        #             if 'length' not in box
-        #             else box['length']
-        #             for box in boxes
-        #         ]
-        #         frames[case_name] = compute_message_frames(
-        #             box_lengths, message_text, forced_slow, animation_time
-        #         )
-        #         frames_disp_lines.append(
-        #             "{}: {}".format(
-        #                 case_name,
-        #                 message_frames_to_display(frames[case_name]),
-        #             )
-        #         )
-        #     frames_disp = "\n".join(sorted(frames_disp_lines))
-        # else:
-        #     box_lengths = [box['length'] for box in boxes]
-        #     frames = compute_message_frames(
-        #         box_lengths, message_text, forced_slow, animation_time
-        #     )
-        #     frames_disp = message_frames_to_display(frames)
-            
-        # m['frames'] = frames
-        # m['frames_disp'] = frames_disp
         
         
     messages_for_lang = [m[lang_code] for m in all_messages]
