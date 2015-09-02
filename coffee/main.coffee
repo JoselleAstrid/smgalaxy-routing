@@ -1,34 +1,3 @@
-# Check if this string starts with the substring s
-# http://stackoverflow.com/a/4579228
-String::startsWith ?= (s) -> this.lastIndexOf(s, 0) is 0
-# Check if this string ends with the substring s
-# https://gist.github.com/felixrabe/db88674566e14e413c6f
-String::endsWith ?= (s) -> s is '' or @slice(-s.length) is s
-# Trim leading and trailing whitespace from this string
-# http://blog.stevenlevithan.com/archives/faster-trim-javascript
-String::trim ?= () -> return this.replace(/^\s\s*/, '').replace(/\s\s*$/, '')
-
-
-curry = (orig_func) ->
-  # Specify arguments of a function without actually calling that function yet.
-  # Source:
-  # http://benalman.com/news/2010/09/partial-application-in-javascript/
-  ap = Array.prototype
-  args = arguments
-
-  fn = () ->
-    ap.push.apply(fn.args, arguments)
-
-    if fn.args.length < orig_func.length
-      return fn
-    else
-      return orig_func.apply(this, fn.args)
-
-  return () ->
-    fn.args = ap.slice.call(args, 1)
-    return fn.apply(this, arguments)
-
-
 class Item
   
 # A level, cutscene, or event. Basically a block of a full game run.
@@ -117,7 +86,7 @@ class Item
       $tr.addClass 'message-frames'
       f = (messageObj_, argSet_, messageCase_) ->
         messageObj_.showFrameDetails(argSet_, messageCase_)
-      $tr.click(curry(f, messageObj, argSet, message.case))
+      $tr.click(Util.curry(f, messageObj, argSet, message.case))
       
       # Display message id.
       $td = $('<td>')
@@ -185,12 +154,17 @@ class Level extends Action
     
     replaceLastChar = (s1, s2) -> s1.slice(0, s1.length - 1) + s2
     
+    # TODO: Organize this aliasing thing better so that you can apply an
+    # alias to an alias. e.g. you can go like Good Egg L -> Good Egg H ->
+    # Good Egg Hidden in a DRY way.
+    
     if @name.endsWith(" C")
       # Add alias that replaces C with 4, or Comet
       @addAlias(replaceLastChar(@name, "4"))
       @addAlias(replaceLastChar(@name, "Comet"))
       @nameCellClass = 'name-level-comet'
-    else if @name.endsWith(" P")
+      
+    if @name.endsWith(" P")
       # Add alias that replaces P with 100, or Purple Coins
       @addAlias(replaceLastChar(@name, "100"))
       @addAlias(replaceLastChar(@name, "Purple Coins"))
@@ -199,23 +173,28 @@ class Level extends Action
       else
         @addAlias(replaceLastChar(@name, "5"))
         @nameCellClass = 'name-level-comet'
-    else if @name.endsWith(" H")
-      @addAlias(replaceLastChar(@name, "6"))
-    else if @name is "Good Egg L" or @name is "Honeyhive L"
+        
+    if @name.endsWith(" H") or @name is "Good Egg L" \
+     or @name is "Honeyhive L" or @name is "Buoy Base G"
       @addAlias(replaceLastChar(@name, "H"))
-      @addAlias(replaceLastChar(@name, "6"))
-      @addAlias(replaceLastChar(@name, "Luigi"))
-    else if @name is "Battlerock L"
+      @addAlias(replaceLastChar(@name, "Hidden"))
+      @addAlias(replaceLastChar(@name, "S"))
+      @addAlias(replaceLastChar(@name, "Secret"))
+      
+      if @name is "Buoy Base G"
+        @addAlias(replaceLastChar(@name, "2"))
+      else
+        @addAlias(replaceLastChar(@name, "6"))
+        
+    if @name is "Battlerock L" or @name is "Dusty Dune G"
+      @addAlias(replaceLastChar(@name, "H2"))
+      @addAlias(replaceLastChar(@name, "7"))
+      
+    if @name is "Battlerock L"
       @addAlias(replaceLastChar(@name, "G"))
-      @addAlias(replaceLastChar(@name, "H2"))
-      @addAlias(replaceLastChar(@name, "7"))
+      
+    if @name.endsWith(" L")
       @addAlias(replaceLastChar(@name, "Luigi"))
-    else if @name is "Buoy Base G"
-      @addAlias(replaceLastChar(@name, "H"))
-      @addAlias(replaceLastChar(@name, "2"))
-    else if @name is "Dusty Dune G"
-      @addAlias(replaceLastChar(@name, "H2"))
-      @addAlias(replaceLastChar(@name, "7"))
       
     if @name.slice(-1) not in (digit.toString() for digit in [0..9])
       # Does not end in a number, must be a galaxy with only one star.
@@ -950,7 +929,7 @@ class Route
         # Currying a class function directly doesn't work,
         # so we use an intermediate function.
         f = (item_, argSet_) -> item_.showFrameDetails(argSet_)
-        $cell.click(curry(f, item, argSet))
+        $cell.click(Util.curry(f, item, argSet))
         
         $row.append $cell
         
