@@ -402,19 +402,6 @@ def print_message_field_examples(
             messages[ex][key]
         ))
     print(s)
-    
-    
-def get_next_valid_text_offset(messages, current_i):
-    # Return the text offset of the next message that has a
-    # valid (non-zero) text offset.
-    # Return None if there are no more valid messages left.
-    i = current_i + 1
-    while i < len(messages):
-        m = messages[i]
-        if m['text_offset'] != 0:
-            return m['text_offset']
-        i += 1
-    return None
 
 
 def read_messages_from_disc_files(bmg, tbl):
@@ -470,7 +457,7 @@ def read_messages_from_disc_files(bmg, tbl):
     
     for i in range(num_messages):
         item_bytes = bytearray(bmg.read(inf1_item_size))
-        messages[i]['text_offset'] = \
+        messages[i]['content_offset'] = \
             struct.unpack('>I', item_bytes[:4])[0]
     blank_bytes = bmg.read(16)
     
@@ -478,40 +465,74 @@ def read_messages_from_disc_files(bmg, tbl):
     dat1_magic_constant = bmg.read(4)
     assert(dat1_magic_constant == b'DAT1')
     dat1_section_size = struct.unpack('>I', bmg.read(4))[0]
-    dat1_text_start = bmg.tell()
+    dat1_content_start = bmg.tell()
     
     for i, m in enumerate(messages):
         
-        text_offset = m['text_offset']
-            
-        if text_offset == 0:
-            # Message with no text location specified.
-            m['bytes'] = None
+        content_offset = m['content_offset']
+        if content_offset == 0:
+            # Message with no content location specified.
+            m['content'] = None
             continue
             
-        next_valid_text_offset = get_next_valid_text_offset(messages, i)
-        if next_valid_text_offset:
-            if next_valid_text_offset < text_offset:
-                raise ValueError(
-                    "Messages seem to be out of order!"
-                    " Haven't been programmed to handle this."
-                )
-            # Read bytes until the next message's starting point.
-            num_bytes_to_read = next_valid_text_offset - text_offset
-        else:
-            # Read until the end of the section.
-            num_bytes_to_read = dat1_section_size - text_offset
+        content_start = dat1_content_start + content_offset
+        current_file_pos = bmg.tell()
+        if content_start < current_file_pos:
+            raise ValueError(
+                "Messages seem to be out of order!"
+                " Haven't been programmed to handle this."
+            )
+        elif content_start > current_file_pos:
+            # Occasionally there are extra bytes between the end (null char) of
+            # one message and the start of the next message. Read those
+            # extra bytes in that case.
+            num_extra_bytes = content_start - current_file_pos
+            print("** Reading {} extra bytes before message {}".format(
+                num_extra_bytes, i
+            ))
+            unused = bmg.read(num_extra_bytes)
+            
+        m['content'] = []
+        text = ""
         
         # bmg.read() results in a bytes type.
         # To see an example of this type, try this in interpreter:
         # bytes('asdf', 'utf-16be')
-        #
-        # Then we convert the bytes to a list of numbers (representing
-        # the byte values).
-        m['text'] = [b for b in bmg.read(num_bytes_to_read)]
+        byte_pair = bmg.read(2)
+        
+        # The message ends at the null character \x00\x00. So, read until that
+        # character is found.
+        while byte_pair != b'\x00\x00':
+            if byte_pair == b'\x00\x1A':
+                # Escape sequence - this part is not normal text
+                
+                # Cut off the current text element if there is one.
+                if text != "":
+                    m['content'].append(text)
+                    text = ""
+                
+                # Next 1 byte is the size of the entire escape sequence.
+                # Subtract 3 (2 for the 00 1A, 1 for the size) to get the size
+                # of the escape sequence data.
+                escape_size = struct.unpack('B', bmg.read(1))[0] - 3
+                # Next comes the escape sequence data.
+                escape_bytes = bmg.read(escape_size)
+                # Add the escape sequence data as a list of numbers
+                # (byte values).
+                m['content'].append([b for b in escape_bytes])
+            else:
+                # Character in UTF-16 big endian; decode and add it as a
+                # UTF-8 character.
+                char = byte_pair.decode('utf-16be')
+                text += char
+            byte_pair = bmg.read(2)
+          
+        # Add the final bit of text if there is one.
+        if text != "":
+            m['content'].append(text)
         
         # Don't need this anymore.
-        m.pop('text_offset')
+        m.pop('content_offset')
     
     return messages
     
@@ -525,6 +546,29 @@ def get_text_bytes(bytes_generator, num_bytes):
     return bytes_gotten
     
 def process_messages(lang_code, messages, lookup):
+    
+    # TODO: Account for new m['content'] format
+    # TODO: Include escape character handling
+    # TODO: Include boxes char addition, including the non-affecting
+    # line break after a box break. See this:
+    #
+    # # A message box break seems to always be followed by a
+    # # newline character, but in this situation the newline
+    # # doesn't affect the time the box text takes to scroll.
+    # # So we won't count this newline as a character for our
+    # # purposes.
+    # # Note that at the start of a box, there is no possibility for
+    # # multiple cases yet, since we only know to add multiple cases
+    # # after a particular escape sequence (number, player name,
+    # # etc.). So that simplifies the check.
+    # newline_after_box_break = (
+    #     char == '\n' and 'text' in boxes[-1]
+    #     and boxes[-1]['text'] == ""
+    # )
+    #
+    # if not newline_after_box_break:
+    #     add_to_box(boxes[-1], 'text', char)
+    #     add_to_box(boxes[-1], 'chars', 1)
     
     msg_id_lookup = dict()
     
@@ -714,40 +758,39 @@ if __name__ == '__main__':
         message_bmg_directory = row[1]
         languages.append(dict(code=lang_code, directory=message_bmg_directory))
     
-    messages = dict()
-    lookup = make_lookup()
-    
-    # Make message objs
     for language in languages:
+        
+        # Read this language's messages from this language's disc files
         lang_code = language['code']
         bmg_filename = os.path.join(language['directory'], 'message.bmg')
         tbl_filename = os.path.join(language['directory'], 'messageid.tbl')
         with open(bmg_filename, 'rb') as bmg, open(tbl_filename, 'rb') as tbl:
-            # Add this language's data to the messages obj
-            messages[lang_code] = read_messages_from_disc_files(bmg, tbl)
+            messages = read_messages_from_disc_files(bmg, tbl)
             
+        # Write message data as a JS file which sets the messages in
+        # window.messages[{lang_code}]
         msg_filename = '../messages_{code}.js'.format(code=lang_code)
-        with open(msg_filename, 'w') as f:
+        with open(msg_filename, 'w', encoding='utf-8') as f:
             messages_by_id = dict()
-            for m in messages[lang_code]:
-                m_id = m['id']
-                m_text = m['text']
-                messages_by_id[m_id] = m_text
-            # Write as a JS file which sets the messages in
-            # window.messages[{lang_code}]
+            for m in messages:
+                messages_by_id[m['id']] = m['content']
             f.write(
                 r"if (window.messages === undefined) {window.messages = {};}"
                 + "\nwindow.messages[{lang_code}] = {message_json};".format(
                     lang_code=lang_code,
-                    message_json=json.dumps(messages_by_id),
+                    message_json=json.dumps(messages_by_id, ensure_ascii=False),
                 )
             )
-            
+        
+    raise ValueError("Rest of this program doesn't work anymore, but will be ported")
+         
+    
+    lookup = make_lookup()
+         
     for language in languages:
         messages[language['code']] = process_messages(
             language['code'], messages[language['code']], lookup
         )
-            
             
     first_lang_code = languages[0]['code']
     
