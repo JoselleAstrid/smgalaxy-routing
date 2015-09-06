@@ -127,7 +127,89 @@ class Action extends Item
   addAlias: (alias) ->
     # Add to the class variable 'aliases'.
     # Map from alias to the standard name.
-    @constructor.aliases[alias] = this
+    # Make all aliases lowercase, so we can do case insensitive recognition.
+    @constructor.aliases[alias.toLowerCase()] = this
+    
+    
+  @addAliases: () ->
+      
+    # The Level constructor added a basic alias for every level: the level
+    # name itself.
+    # Here we add more aliases for various actions (mostly levels).
+    
+    replaceLastChar = (s1, s2) -> s1.slice(0, s1.length - 1) + s2
+    
+    # Make a way to filter aliases based on a boolean test.
+    getAliases = (boolFunc) ->
+      if not boolFunc?
+        return Action.aliases
+      
+      aliasSubset = {}
+      for alias, action of Action.aliases
+        if boolFunc(alias)
+          aliasSubset[alias] = action
+      return aliasSubset
+      
+    for alias, action of getAliases((a) -> a.endsWith(" c"))
+      # Add alias that replaces c with 4, or comet
+      action.addAlias replaceLastChar(alias, "4")
+      action.addAlias replaceLastChar(alias, "comet")
+        
+    for alias, action of getAliases((a) -> a.endsWith(" p"))
+      action.addAlias replaceLastChar(alias, "100")
+      action.addAlias replaceLastChar(alias, "purples")
+      action.addAlias replaceLastChar(alias, "purple coins")
+      if alias is "gateway p"
+        action.addAlias replaceLastChar(alias, "2")
+      else
+        action.addAlias replaceLastChar(alias, "5")
+        
+    for alias, action of getAliases()
+      if alias in ["good egg l", "honeyhive l", "buoy base g"]
+        action.addAlias replaceLastChar(alias, "h")
+          
+      if alias in ["battlerock l", "dusty dune g"]
+        action.addAlias replaceLastChar(alias, "h2")
+        action.addAlias replaceLastChar(alias, "7")
+        
+      if alias is "battlerock l"
+        action.addAlias replaceLastChar(alias, "g")
+    
+    for alias, action of getAliases((a) -> a.endsWith(" h"))
+      
+      action.addAlias replaceLastChar(alias, "hidden")
+      action.addAlias replaceLastChar(alias, "s")
+      action.addAlias replaceLastChar(alias, "secret")
+        
+      if alias is "buoy base h"
+        action.addAlias replaceLastChar(alias, "2")
+      else
+        action.addAlias replaceLastChar(alias, "6")
+        
+    for alias, action of getAliases((a) -> a.endsWith(" l"))
+      action.addAlias replaceLastChar(alias, "luigi")
+    
+    for alias, action of getAliases((a) -> a.endsWith(" g"))
+      action.addAlias replaceLastChar(alias, "green")
+      
+    for alias, action of getAliases((a) -> a.startsWith("bowser's "))
+      # Can omit this part
+      action.addAlias alias.replace("bowser's ", "")
+      
+    for alias, action of getAliases((a) -> a.startsWith("bowser jr.'s "))
+      # Can omit this part
+      action.addAlias alias.replace("bowser jr.'s ", "")
+        
+    starEndings = [
+      '1','2','3','4','5','6','7',
+      'h','hidden','s','secret',
+      'g','green','l','luigi',
+      'c','comet','p','purples','purple coins','100',
+    ]
+    for alias, action of getAliases((a) -> not a.endsWith(starEndings))
+      # This should be a galaxy with only one star.
+      # Accept an alias ending in " 1".
+      action.addAlias (alias + " 1")
       
       
   text: () ->
@@ -149,66 +231,11 @@ class Level extends Action
     @nameCellClass = 'name-level'
     
     @starNameId = details.star_name
-      
-    # The super call added @name as an alias. Here we add more aliases.
-    
-    replaceLastChar = (s1, s2) -> s1.slice(0, s1.length - 1) + s2
-    
-    # TODO: Organize this aliasing thing better so that you can apply an
-    # alias to an alias. e.g. you can go like Good Egg L -> Good Egg H ->
-    # Good Egg Hidden in a DRY way.
     
     if @name.endsWith(" C")
-      # Add alias that replaces C with 4, or Comet
-      @addAlias(replaceLastChar(@name, "4"))
-      @addAlias(replaceLastChar(@name, "Comet"))
       @nameCellClass = 'name-level-comet'
-      
-    if @name.endsWith(" P")
-      # Add alias that replaces P with 100, or Purple Coins
-      @addAlias(replaceLastChar(@name, "100"))
-      @addAlias(replaceLastChar(@name, "Purple Coins"))
-      if @name is "Gateway P"
-        @addAlias(replaceLastChar(@name, "2"))
-      else
-        @addAlias(replaceLastChar(@name, "5"))
-        @nameCellClass = 'name-level-comet'
-        
-    if @name.endsWith(" H") or @name is "Good Egg L" \
-     or @name is "Honeyhive L" or @name is "Buoy Base G"
-      @addAlias(replaceLastChar(@name, "H"))
-      @addAlias(replaceLastChar(@name, "Hidden"))
-      @addAlias(replaceLastChar(@name, "S"))
-      @addAlias(replaceLastChar(@name, "Secret"))
-      
-      if @name is "Buoy Base G"
-        @addAlias(replaceLastChar(@name, "2"))
-      else
-        @addAlias(replaceLastChar(@name, "6"))
-        
-    if @name is "Battlerock L" or @name is "Dusty Dune G"
-      @addAlias(replaceLastChar(@name, "H2"))
-      @addAlias(replaceLastChar(@name, "7"))
-      
-    if @name is "Battlerock L"
-      @addAlias(replaceLastChar(@name, "G"))
-      
-    if @name.endsWith(" L")
-      @addAlias(replaceLastChar(@name, "Luigi"))
-      
-    if @name.slice(-1) not in (digit.toString() for digit in [0..9])
-      # Does not end in a number, must be a galaxy with only one star.
-      # Accept an alias ending in " 1".
-      @addAlias(@name + " 1")
-      
-    if @name.startsWith("Bowser's ")
-      # Can omit
-      @addAlias(@name.replace("Bowser's ", ""))
-      @addAlias(@name.replace("Bowser's ", "") + " 1")
-    else if @name.startsWith("Bowser Jr.'s ")
-      # Can omit
-      @addAlias(@name.replace("Bowser Jr.'s ", ""))
-      @addAlias(@name.replace("Bowser Jr.'s ", "") + " 1")
+    if @name.endsWith(" P") and @name isnt "Gateway P"
+      @nameCellClass = 'name-level-comet'
       
     # Add to starNameLookup.
     # Note: This requires messages to be initialized before levels.
@@ -898,6 +925,9 @@ class Route
       
     
   lineToAction: (line) ->
+    # Make item recognition non-case-sensitive
+    line = line.toLowerCase()
+    
     if line.startsWith "*"
       # Assumed to be just a comment, e.g. "* Back to start of observatory"
       return 'comment'
@@ -926,7 +956,7 @@ class Route
       return Action.aliases[line]
       
     # Check for just the star name
-    if line.toLowerCase() of Level.starNameLookup
+    if line of Level.starNameLookup
       return Level.starNameLookup[line.toLowerCase()]
       
     # Check if there's a dash, and if so, see if we can find a
@@ -1311,6 +1341,9 @@ class Main
         console.log(
           "Invalid item type: " + details.type
         )
+      
+    # Add text aliases for possible route items.
+    Action.addAliases()
         
     # Build message-related lookup structures.
     MessageUtil.buildLookups()
