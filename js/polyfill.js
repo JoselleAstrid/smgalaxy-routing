@@ -3,6 +3,11 @@ In a handwritten JS file, because defining polyfills in
 CoffeeScript doesn't seem to let us share the polyfill
 between modules. */
 
+// https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Math/fround
+Math.fround = Math.fround || function(x) {
+  return new Float32Array([x])[0];
+};
+
 // https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith
 if (!String.prototype.startsWith) {
   String.prototype.startsWith = function(searchString, position) {

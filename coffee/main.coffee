@@ -224,14 +224,10 @@ class Level extends Action
       
     
   starName: (langCode, character) ->
+    argSet = {character: character, langCode: langCode}
     # Assume a star name message only has 1 box.
-    box = Message.idLookup[@starNameId].data[langCode].boxes[0]
-    if 'text' of box
-      return box.text
-    else
-      # box has multiple cases; for star names the only possibilities are
-      # mario and luigi.
-      return box[character].text
+    box = Message.idLookup[@starNameId].computeBoxes(argSet, null)[0]
+    return box.text
         
       
   text: (starCount, character) ->
@@ -258,6 +254,468 @@ class Event extends Item
   text: () ->
     return "* #{@name} "
     
+    
+class MessageUtil
+  
+  
+  @animationTimeLookup: {}
+  @colorLookup: {}
+  @forcedSlowLookup: []
+  @iconLookup: {}
+  @numberNameLookup: {}
+  
+  
+  @buildLookups: () ->
+    
+    # Animation times
+    callback = (text) ->
+      lineRegex = /([A-Za-z0-9_]+) = ([0-9]+)/
+      lines = Util.splitlines(text)
+      
+      for line in lines
+        line = line.trim()
+        
+        if line is ""
+          # Blank line
+          continue
+        else if line.startsWith('#')
+          # Comment line
+          continue
+          
+        # Should be of the form: messageId = 120
+        match = lineRegex.exec(line)
+        if not match?
+          console.log(
+            "The following animation-times line is not"
+            + "the expected format: #{line}"
+          )
+        messageId = match[1] 
+        numOfFrames = Number(match[2])
+        MessageUtil.animationTimeLookup[messageId] = numOfFrames
+    Util.readServerTextFile('data/messages/animation-times.txt', callback)
+    
+    # Colors in escape sequences
+    callback = (text) ->
+      lines = Util.splitlines(text)
+      
+      for line in lines
+        line = line.trim()
+        [code, name] = line.split(',')
+        code = Number(code)
+        MessageUtil.colorLookup[code] = name
+    Util.readServerTextFile('data/messages/color-codes.txt', callback)
+    
+    # Messages that are forced at slow speed even if you hold A
+    callback = (text) ->
+      lines = Util.splitlines(text)
+      
+      for line in lines
+        messageId = line.trim()
+        MessageUtil.forcedSlowLookup.push(messageId)
+    Util.readServerTextFile('data/messages/forced-slow-messages.txt', callback)
+    
+    # Icons in escape sequences
+    callback = (text) ->
+      lines = Util.splitlines(text)
+      
+      for line in lines
+        line = line.trim()
+        [code, name] = line.split(',')
+        code = Number(code)
+        MessageUtil.iconLookup[code] = name
+    Util.readServerTextFile('data/messages/icon-codes.txt', callback)
+    
+    # Icons in escape sequences
+    callback = (text) ->
+      json = JSON.parse(text)
+      for messageId, obj of json
+        MessageUtil.numberNameLookup[messageId] = obj
+    Util.readServerTextFile('data/messages/number-name-specifics.json', callback)
+    
+    
+  @hideMessageDetails: () ->
+    
+    $('#message-details').hide()
+    $('#route-table-container').show()
+    
+    
+  @decodeUTF16BigEndian: (byteArray) ->
+    # Idea from http://stackoverflow.com/a/14601808
+    numCodePoints = byteArray.length / 2
+    codePoints = []
+    for i in [0..(numCodePoints - 1)]
+      codePoints.push(
+        byteArray[i*2]
+        + byteArray[i*2 + 1] << 8
+      )
+    return String.fromCharCode.apply(String, codePoints)
+    
+    
+  @bytesStartWith: (bytes, arr2) ->
+    # bytes is an array of integers. Return true if bytes
+    # starts with a sub-array equal to arr2.
+    
+    # Get a byte array from the beginning of bytes, max
+    # length equal to arr2's length
+    arr1 = bytes.slice(0, arr2.length)
+    
+    # See if arr1 and arr2 are equal
+    if arr1.length isnt arr2.length
+      return false
+    return arr1.every((element, index) ->
+      return element is arr2[index] 
+    )
+    
+    
+  @processEscapeSequence: (
+    escapeBytes, boxes, messageId, argSet, messageCase,
+    displayColors=false, displayFurigana=false) ->
+    # Add the escape sequence contents to the boxes structure.
+    
+    escapeBytesStartWith = Util.curry(@bytesStartWith, escapeBytes)
+    lastBox = boxes[boxes.length-1]
+    
+    if escapeBytesStartWith [1,0,0,0]
+      # Text pause - length is either 10, 15, 30, or 60.
+      pauseLength = escapeBytes[4]
+      text = "<Text pause, #{pauseLength.toString()}L>"
+      
+      if 'pauseLength' of lastBox
+        lastBox.pauseLength += pauseLength
+      else
+        lastBox.pauseLength = pauseLength
+        
+    else if escapeBytesStartWith [1,0,1]
+      # Message box break.
+      text = ""
+      boxes.push({chars: 0, text: ""})
+      
+    else if escapeBytesStartWith [1,0,2]
+      text = '<Lower-baseline text>'
+        
+    else if escapeBytesStartWith [1,0,3]
+      text = '<Center align>'
+        
+    else if escapeBytesStartWith [2,0,0,0,0x53]
+      text = '<Play voice audio>'
+        
+    else if escapeBytesStartWith [3,0]
+      # Icon.
+      iconByte = escapeBytes[2]
+      iconName = @iconLookup[iconByte]
+      text = "<#{iconName} icon>"
+      # Any icon counts as one character.
+      lastBox.chars += 1
+      
+    else if escapeBytesStartWith [4,0,0]
+      text = '<Small text>'
+        
+    else if escapeBytesStartWith [4,0,2]
+      text = '<Large text>'
+      
+    else if escapeBytesStartWith [5,0,0,0,0]
+      # Mario's name or Luigi's name.
+      if messageCase is 'general'
+        # TODO: Use this case
+        text = '<Player name>'
+      else
+        if argSet.character is 'mario'
+          textMessageId = 'System_PlayerName000'
+        else if argSet.character is 'luigi'
+          textMessageId = 'System_PlayerName100'
+          
+        textMessage = Message.idLookup[textMessageId]
+        text = textMessage.computeBoxes(argSet, messageCase)[0].text
+        lastBox.chars += text.length
+        
+    else if escapeBytesStartWith [5,0,0,1,0]
+      # Mario's name or Luigi's name, drawn out excitedly.
+      if messageCase is 'general'
+        # TODO: Use this case
+        text = '<Mr. Plaaayer naaame>'
+      else
+        if argSet.character is 'mario'
+          textMessageId = 'System_PlayerName001'
+        else if argSet.character is 'luigi'
+          textMessageId = 'System_PlayerName101'
+          
+        textMessage = Message.idLookup[textMessageId]
+        text = textMessage.computeBoxes(argSet, messageCase)[0].text
+        lastBox.chars += text.length
+        
+    else if escapeBytesStartWith [6] or escapeBytesStartWith [7]
+      # A number or name variable.
+      # The actual text is message dependent, or even case dependent beyond
+      # that (e.g. which level a Hungry Luma is in). But we have defined the
+      # text for the cases that we care about.
+      
+      if messageId of @numberNameLookup
+        obj = @numberNameLookup[messageId]
+        numberNameType = obj._type
+        
+        if messageCase is 'general'
+          # TODO: Use this case
+          text = obj._placeholder
+        
+        else if numberNameType is 'text'
+          if messageCase of obj
+            text = obj[messageCase]
+          else if argSet.character of obj
+            text = obj[argSet.character]
+          lastBox.chars += text.length
+          
+        else if numberNameType is 'message'
+          if messageCase of obj
+            textMessageId = obj[messageCase]
+          else if argSet.character of obj
+            textMessageId = obj[argSet.character]
+      
+          textMessage = Message.idLookup[textMessageId]
+          text = textMessage.computeBoxes(argSet, messageCase)[0].text
+          lastBox.chars += text.length
+            
+      else
+        console.log(
+          "Don't know how to handle number/name variable"
+          + "for message: #{messageId}"
+        )
+        # TODO: Indicate an error somehow?
+        
+    else if escapeBytesStartWith [9,0,5]
+      # Race time (Spooky Sprint, etc.)
+      text = 'xx:xx:xx'
+      lastBox.chars += text.length
+      
+    else if escapeBytesStartWith [0xFF,0,0]
+      # Signify start or end of text color.
+      colorByte = escapeBytes[3]
+      colorType = @colorLookup[colorByte]
+      if displayColors
+        text = "<#{colorType} color>"
+      else
+        text = ""
+        
+    else if escapeBytesStartWith [0xFF,0,2]
+      # Japanese furigana (kanji reading help).
+      kanjiCount = escapeBytes[3]
+      furiganaBytes = escapeBytes.slice(4)
+      furiganaStr = @decodeUTF16BigEndian(furiganaBytes)
+      if displayFurigana
+        text = "<#{furiganaStr}>"
+      else
+        text = ""
+        
+    else
+      console.log("Unknown escape sequence: #{escapeBytes}")
+      # TODO: Indicate an error somehow?
+      
+    lastBox.text += text
+    
+    
+  @boxTextDisplayHTML: ($el, box) ->
+    
+    # Append a display of a box's text to the jQuery element $el.
+      
+    boxTextLines = box.text.split('\n')
+    
+    for line, index in boxTextLines
+      notLastLine = index < boxTextLines.length - 1
+      
+      # Since the webpage display sometimes has extra linebreaks,
+      # make it clear where the actual message linebreaks are
+      if notLastLine
+        line += '↵'
+        
+      # Add box text
+      $el.append document.createTextNode(line)
+      
+      if notLastLine
+        # Put a br between text lines
+        $el.append $('<br>')
+        
+    # TODO: Make a version of this function (or different argument?) for
+    # box text display for CSV.
+    
+    
+  @computeBoxLength: (box, langCode, $el=null) ->
+    
+    # Compute the length of the box and store the result in box.length.
+    #
+    # If a jQuery element $el is given, append an explanation of the
+    # box length computation to that element.
+    
+    charAlphaReq = 0.9
+    # TODO: Get the fadeRates from a language-info file.
+    if langCode == 'usenglish'
+      fadeRate = 0.4375
+    else if langCode == 'jpjapanese'
+      fadeRate = 0.35
+    else
+      console.log("Unsupported language code: #{langCode}")
+    
+    $ul = $('<ul>')
+    if $el?
+      $el.append $ul
+      
+    alphaReq = (box.chars * charAlphaReq) + 1
+    line = "(#{box.chars} chars * #{charAlphaReq} alpha req per char)
+      + 1 extra alpha req = "
+    result = "#{alphaReq.toFixed(1)} alpha req"
+    $li = $('<li>')
+    $li.append document.createTextNode(line)
+    $li.append $('<span>').addClass('mid-result').text(result)
+    $ul.append $li
+    
+    length = Math.floor(alphaReq / fadeRate)
+    line = "floor(... / #{fadeRate} fade rate) = "
+    result = "#{length} length"
+    $li = $('<li>')
+    $li.append document.createTextNode(line)
+    $li.append $('<span>').addClass('mid-result').text(result)
+    $ul.append $li
+        
+    # Confine to float32 precision to see what the game actually computes
+    f32 = Math.fround
+    alphaReqF32 = f32(f32(box.chars) * f32(charAlphaReq)) + f32(1)
+    lengthF32 = Math.floor(f32(f32(alphaReqF32) / f32(fadeRate)))
+    
+    if length isnt lengthF32
+      
+      length = lengthF32
+      line = "Due to 32-bit float imprecision, it's actually "
+      result = "#{length} length"
+      $li = $('<li>')
+      $li.append document.createTextNode(line)
+      $li.append $('<span>').addClass('mid-result').text(result)
+      $ul.append $li
+    
+    if 'pauseLength' of box
+      
+      # Add pause length if applicable.
+      length += box.pauseLength
+      line = "... + #{box.pauseLength} pause length = "
+      result = "#{length} length"
+      $li = $('<li>')
+      $li.append document.createTextNode(line)
+      $li.append $('<span>').addClass('mid-result').text(result)
+      $ul.append $li
+      
+    # Set the computed length in the box object.
+    box.length = length
+        
+    # Whatever the final result element was, style it as the final result.
+    $finalResult = $li.find('span.mid-result')
+    $finalResult.removeClass('mid-result').addClass('final-result')
+    
+    
+  @messageFrames: (boxes, messageId, boxEndTimingError, $el=null) ->
+    
+    boxLengths = (b.length for b in boxes)
+      
+    # Append a message frames explanation to the jQuery element $el.
+    $ul = $('<ul>')
+    if $el?
+      $el.append $ul
+    
+    if messageId in @forcedSlowLookup
+      
+      line = "Forced slow text, so 1 frame per length unit"
+      $ul.append $('<li>').text(line)
+      frames = 0
+      
+      for boxLength, index in boxLengths
+        
+        if index > 0
+          line = "... + "
+        else
+          line = ""
+        frames += boxLength + 2
+        line += "(#{boxLength} box length / 1) + 2 box end delay frames = "
+      
+        result = "#{frames} frames"
+        $li = $('<li>')
+        $li.append document.createTextNode(line)
+        $li.append $('<span>').addClass('mid-result').text(result)
+        $ul.append $li
+    
+    else
+      
+      line = "When holding A, 1 frame per 3 length units"
+      $ul.append $('<li>').text(line)
+      
+      if boxLengths.length > 1
+        line = "When pressing A to end a box, the next box starts with up to
+          10 frames of slow text because A was re-pressed"
+        $ul.append $('<li>').text(line)
+        
+      frames = 0
+      
+      for boxLength, index in boxLengths
+        
+        if index == 0
+          # First box
+          frames += Math.ceil(boxLength / 3)
+          line = "ceiling(#{boxLength} box length / 3) "
+        else
+          # Second box or later
+          line = "... "
+          if boxLength <= 10
+            # Box is within 10 length
+            frames += boxLength
+            line += "+ (#{boxLength} length / 1) "
+          else
+            # Longer length
+            frames += 10 + Math.ceil((boxLength-10) / 3)
+            line += "+ (10 length / 1) "
+            line += "+ ceiling((#{boxLength} length - 10) / 3) "
+            
+        frames += 2
+        if index == 0
+          line += "+ 2 box-end delay frames = "
+        else
+          line += "+ 2 delay frames = "
+      
+        result = "#{frames} frames"
+        $li = $('<li>')
+        $li.append document.createTextNode(line)
+        $li.append $('<span>').addClass('mid-result').text(result)
+        $ul.append $li
+        
+    if boxEndTimingError > 0
+      # We've specified an average box end timing error of more than 0 frames.
+      
+      numBoxes = boxLengths.length
+      frames += (numBoxes * boxEndTimingError)
+      line = "... + (#{numBoxes} box endings 
+        * #{boxEndTimingError} frames of human timing error) = "
+        
+      result = "#{frames} frames"
+      $li = $('<li>')
+      $li.append document.createTextNode(line)
+      $li.append $('<span>').addClass('mid-result').text(result)
+      $ul.append $li
+      
+    if messageId of @animationTimeLookup
+      # There's a cutscene with animations that have to play out entirely before
+      # advancing, even if the message is done.
+      animationTime = @animationTimeLookup[messageId]
+      
+      frames = Math.max(frames, animationTime)
+      line = "max(..., #{animationTime} cutscene animation frames) = "
+      
+      result = "#{frames} frames"
+      $li = $('<li>')
+      $li.append document.createTextNode(line)
+      $li.append $('<span>').addClass('mid-result').text(result)
+      $ul.append $li
+        
+    # Whatever the final result was, style it as the final result.
+    $finalResult = $li.find('span.mid-result')
+    $finalResult.removeClass('mid-result').addClass('final-result')
+    
+    # Return the computed frame count.
+    return frames
+    
 
 class Message
   
@@ -267,31 +725,60 @@ class Message
     @constructor.idLookup[@id] = this
     
     
+  computeBoxes: (argSet, messageCase) ->
+    
+    content = @data[argSet.langCode]
+    
+    # TODO: Handle content == null
+    # TODO: Handle content == []
+    
+    boxes = [{chars: 0, text: ""}]
+    
+    for item in content
+      
+      # An item could be a box break which changes the last box, so
+      # re-set this after every item.
+      lastBox = boxes[boxes.length-1]
+      
+      if typeof(item) is "string"
+        # Text.
+        
+        # A message box break seems to always be followed by a
+        # newline character, but in this situation the newline
+        # doesn't affect the time the box text takes to scroll.
+        # So we won't count such a newline as a character for our
+        # purposes.
+        #
+        # Box break check: the latest box's text is empty.
+        # Action: Chop off the leading newline.
+        newlineAfterBoxBreak = \
+          item.charAt(0) is '\n' and lastBox.text is ""
+        if newlineAfterBoxBreak
+          item = item.slice(1)
+        
+        lastBox.chars += item.length
+        lastBox.text += item
+      else
+        # Escape sequence.
+        # This function will add the escape sequence contents
+        # to the boxes structure.
+        MessageUtil.processEscapeSequence(
+          item, boxes, @id, argSet, messageCase
+        )
+        
+    # At this point we've got text and chars covered, and pauseLength
+    # if applicable. Compute the box lengths.
+    for box in boxes
+      MessageUtil.computeBoxLength(box, argSet.langCode)
+        
+    return boxes
+    
+    
   frames: (argSet, messageCase) ->
     
-    frames = @data[argSet.langCode].frames
-    
-    if not frames
-      console.log(
-        "Requesting frame count of a null or empty message, " + @id
-      )
-      
-    if 'base' not of frames
-      # Multiple cases. Can be by character or by something else (specified
-      # in messageCase).
-      if messageCase
-        frames = frames[messageCase]
-      else
-        frames = frames[argSet.character]
-      
-    messageFrames = frames['base']
-    
-    messageFrames += frames['num_boxes'] * argSet.boxEndTimingError
-      
-    if 'animation_time' of frames
-      messageFrames = Math.max(messageFrames, frames['animation_time'])
-      
-    return messageFrames
+    boxes = @computeBoxes(argSet, messageCase)
+    frames = MessageUtil.messageFrames(boxes, @id, argSet.boxEndTimingError)
+    return frames
     
     
   showFrameDetails: (argSet, messageCase) ->
@@ -303,7 +790,7 @@ class Message
     # Display a Back button to make the route table viewable again
     $backButton = $('<button>')
     $backButton.text "Back"
-    $backButton.click hideMessageDetails
+    $backButton.click MessageUtil.hideMessageDetails
     $messageDetails.append $backButton
     
     # Display the message id
@@ -318,22 +805,10 @@ class Message
     $('#route-table-container').hide()
     $messageDetails.show()
     
-    boxLengths = []
+    boxes = @computeBoxes(argSet, messageCase)
     
     # Display box level frame details
-    for box in data.boxes
-      
-      if 'mario' of box
-        
-        # box has multiple cases, mario and luigi; pick the one who applies
-        box = box[argSet.character]
-      
-      else if 'text' not of box
-        
-        # Another kind of multi-case box
-        box = box[messageCase]
-        
-      boxLengths.push box.length
+    for box in boxes
         
       $tr = $('<tr>')
       $tbody.append $tr
@@ -341,222 +816,22 @@ class Message
       # Box text
       $td = $('<td>')
       $td.addClass 'box-text'
-      
-      boxTextLines = box.text.split('\n')
-      
-      for line, index in boxTextLines
-        notLastLine = index < boxTextLines.length - 1
-        
-        # Since the webpage display sometimes has extra linebreaks,
-        # make it clear where the actual message linebreaks are
-        if notLastLine
-          line += '↵'
-          
-        # Add box text
-        $td.append document.createTextNode(line)
-        
-        if notLastLine
-          # Put a br between text lines
-          $td.append $('<br>')
+      MessageUtil.boxTextDisplayHTML($td, box)
       $tr.append $td
       
       # Box length explanation
       $td = $('<td>')
       $td.addClass 'box-length-explanation'
-      boxLengthExplanation(box, argSet.langCode, $td)
+      MessageUtil.computeBoxLength(box, argSet.langCode, $td)
       $tr.append $td
       
     # Display message level frame details
-    frames = data.frames
-    if 'base' not of frames
-      # Multiple cases. Can be by character or by something else (specified
-      # in messageCase).
-      if messageCase
-        frames = frames[messageCase]
-      else
-        frames = frames[argSet.character]
-    messageFramesExplanation(
-      boxLengths, frames, argSet.boxEndTimingError, $messageDetails
+    MessageUtil.messageFrames(
+      boxes, @id, argSet.boxEndTimingError, $messageDetails
     )
     
     # Append box length explanations
     $messageDetails.append $table
-    
-    
-hideMessageDetails = () ->
-  
-  $('#message-details').hide()
-  $('#route-table-container').show()
-    
-    
-boxLengthExplanation = (box, langCode, $el) ->
-  
-  # Append a box length(s) explanation to the jQuery element $el.
-  
-  charAlphaReq = 0.9
-  if langCode == 'usenglish'
-      fadeRate = 0.4375
-  else if langCode == 'jpjapanese'
-      fadeRate = 0.35
-  else
-      raise ValueError("Unsupported language code: " + str(lang_code))
-  
-  $ul = $('<ul>')
-  $el.append $ul
-    
-  alphaReq = (box['chars'] * charAlphaReq) + 1
-  line = "(#{box['chars']} chars * #{charAlphaReq} alpha req per char)
-    + 1 extra alpha req = "
-  result = "#{alphaReq.toFixed(1)} alpha req"
-  $li = $('<li>')
-  $li.append document.createTextNode(line)
-  $li.append $('<span>').addClass('mid-result').text(result)
-  $ul.append $li
-  
-  length = Math.floor(alphaReq / fadeRate)
-  line = "floor(... / #{fadeRate} fade rate) = "
-  result = "#{length} length"
-  $li = $('<li>')
-  $li.append document.createTextNode(line)
-  $li.append $('<span>').addClass('mid-result').text(result)
-  $ul.append $li
-  
-  if length + box['pause_length'] == box['length'] + 1
-    
-    length -= 1
-    line = "Due to 32-bit float imprecision, it's actually "
-    result = "#{length} length"
-    $li = $('<li>')
-    $li.append document.createTextNode(line)
-    $li.append $('<span>').addClass('mid-result').text(result)
-    $ul.append $li
-  
-  if box['pause_length'] > 0
-    
-    length += box['pause_length']
-    line = "... + #{box['pause_length']} pause length = "
-    result = "#{length} length"
-    $li = $('<li>')
-    $li.append document.createTextNode(line)
-    $li.append $('<span>').addClass('mid-result').text(result)
-    $ul.append $li
-      
-  # Whatever the final result was, style it as the final result.
-  $finalResult = $li.find('span.mid-result')
-  $finalResult.removeClass('mid-result').addClass('final-result')
-    
-    
-messageFramesExplanation = (boxLengths, framesObj, boxEndTimingError, $el) ->
-    
-  # Append a message frames explanation to the jQuery element $el.
-  $ul = $('<ul>')
-  $el.append $ul
-  
-  if framesObj.forced_slow
-    
-    line = "Forced slow text, so 1 frame per length unit"
-    $ul.append $('<li>').text(line)
-    frames = 0
-    
-    for boxLength, index in boxLengths
-      
-      if index > 0
-        line = "... + "
-      else
-        line = ""
-      frames += boxLength + 2
-      line += "(#{boxLength} box length / 1) + 2 box end delay frames = "
-    
-      result = "#{frames} frames"
-      $li = $('<li>')
-      $li.append document.createTextNode(line)
-      $li.append $('<span>').addClass('mid-result').text(result)
-      $ul.append $li
-  
-  else
-    
-    line = "When holding A, 1 frame per 3 length units"
-    $ul.append $('<li>').text(line)
-    
-    if boxLengths.length > 1
-      line = "When pressing A to end a box, the next box starts with up to
-        10 frames of slow text because A was re-pressed"
-      $ul.append $('<li>').text(line)
-      
-    frames = 0
-    
-    for boxLength, index in boxLengths
-      
-      if index == 0
-        # First box
-        frames += Math.ceil(boxLength / 3)
-        line = "ceiling(#{boxLength} box length / 3) "
-      else
-        # Second box or later
-        line = "... "
-        if boxLength <= 10
-          # Box is within 10 length
-          frames += boxLength
-          line += "+ (#{boxLength} length / 1) "
-        else
-          # Longer length
-          frames += 10 + Math.ceil((boxLength-10) / 3)
-          line += "+ (10 length / 1) "
-          line += "+ ceiling((#{boxLength} length - 10) / 3) "
-          
-      frames += 2
-      if index == 0
-        line += "+ 2 box-end delay frames = "
-      else
-        line += "+ 2 delay frames = "
-    
-      result = "#{frames} frames"
-      $li = $('<li>')
-      $li.append document.createTextNode(line)
-      $li.append $('<span>').addClass('mid-result').text(result)
-      $ul.append $li
-      
-  if boxEndTimingError > 0
-    # We've specified an average box end timing error of more than 0 frames.
-    
-    numBoxes = boxLengths.length
-    frames += (numBoxes * boxEndTimingError)
-    line = "... + (#{numBoxes} box endings 
-      * #{boxEndTimingError} frames of human timing error) = "
-      
-    result = "#{frames} frames"
-    $li = $('<li>')
-    $li.append document.createTextNode(line)
-    $li.append $('<span>').addClass('mid-result').text(result)
-    $ul.append $li
-    
-  if framesObj.animation_time
-    # There's a cutscene with animations that have to play out entirely before
-    # advancing, even if the message is done.
-    
-    frames = Math.max(frames, framesObj.animation_time)
-    line = "max(..., #{framesObj.animation_time} cutscene animation frames) = "
-    
-    result = "#{frames} frames"
-    $li = $('<li>')
-    $li.append document.createTextNode(line)
-    $li.append $('<span>').addClass('mid-result').text(result)
-    $ul.append $li
-      
-  # Whatever the final result was, style it as the final result.
-  $finalResult = $li.find('span.mid-result')
-  $finalResult.removeClass('mid-result').addClass('final-result')
-      
-  if framesObj.additional_factors
-    # Any additional message factors (<Name>, <Number>) we haven't covered
-    # should only be in messages we don't care about for routing. So if we
-    # find something here, then that's a mistake...
-    
-    for factor in framesObj.additional_factors
-      $li = $('<li>').text(
-        "Additional factor that hasn't been measured: #{factor}"
-      )
-      $ul.append $li
     
     
     
@@ -587,7 +862,7 @@ class Route
     @actions = []
     
     # Split text into lines
-    lines = text.split("\n")
+    lines = Util.splitlines(text)
     
     $('#route-status').empty()
     
@@ -600,8 +875,8 @@ class Route
       
       action = @lineToAction(line)
       if not action
-        @setRouteStatus("Could not parse as a level/action: " + line)
-        return
+        @addRouteStatus("Could not recognize as a level/action: " + line)
+        break
       else if action is 'comment'
         # Just a comment line in the text route; ignore it.
         continue
@@ -614,11 +889,12 @@ class Route
     else if category is "120 star"
       @endItemName = "Bowser's Galaxy Reactor"
       @endRequirements = ["120 stars"]
-    else
-      setRouteStatus("Unsupported category: #{category}")
       
-  setRouteStatus: (s) ->
-    $('#route-status').text(s)
+      
+  addRouteStatus: (s) ->
+    
+    $('#route-status').append(document.createTextNode(s))
+    $('#route-status').append(document.createElement('br'))
       
     
   lineToAction: (line) ->
@@ -628,7 +904,6 @@ class Route
     if line.startsWith ">"
       # Assumed to be an action with an exact name, e.g. "> Luigi letter 2".
       line = line.slice(1).trim()
-      
     
     # Check if line begins with a star number like "5." or "17)"
     # If so, remove it
@@ -685,14 +960,14 @@ class Route
     # Way 2: it's a >= stars req and we've got it
     match = @constructor.starsReqRegex.exec(req)
     if match
-      reqStars = parseInt(match[1].trim())
+      reqStars = Number(match[1].trim())
       if starCount >= reqStars
         return true
         
     # Way 3: it's a < stars req and we've got it
     match = @constructor.lessThanStarsReqRegex.exec(req)
     if match
-      reqLessThanStars = parseInt(match[1].trim())
+      reqLessThanStars = Number(match[1].trim())
       if starCount < reqLessThanStars
         return true
         
@@ -741,14 +1016,14 @@ class Route
           s = "At this point the route must have: '" \
             + expectedActionName + "' but instead it has: '" \
             + action.name + "'"
-          @setRouteStatus(s)
+          @addRouteStatus(s)
         expectedActionName = null
         
       # Check requirements for this item.
       for req in action.requirements
         if not @fulfilledRequirement(req, completedItemNames, starCount)
           s = "'" + action.name + "' has an unfulfilled requirement: " + req
-          @setRouteStatus(s)
+          @addRouteStatus(s)
           return
         
       # Check special requirements for Luigi events.
@@ -759,7 +1034,7 @@ class Route
             5 in-between stars since that Luigi star. Current status: " \
             + luigiStatus.luigiStars.toString() + " Luigi star(s) and " \
             + luigiStatus.betweenStars.toString() + " in-between star(s)."
-          @setRouteStatus(s)
+          @addRouteStatus(s)
           return
       else if action.name is "Luigi letter 3"
         if not (luigiStatus.luigiStars is 2 and luigiStatus.betweenStars >= 5)
@@ -768,7 +1043,7 @@ class Route
             5 in-between stars since that Luigi star. Current status: " \
             + luigiStatus.luigiStars.toString() + " Luigi star(s) and " \
             + luigiStatus.betweenStars.toString() + " in-between star(s)."
-          @setRouteStatus(s)
+          @addRouteStatus(s)
           return
       
       # Add the action to the route.
@@ -867,7 +1142,7 @@ class Route
         if followingItem.name of Item.followingItemsLookup
           followingItems.push(Item.followingItemsLookup[followingItem.name]...)
           
-    @setRouteStatus("Route is incomplete!")
+    @addRouteStatus("Route is incomplete!")
           
       
   makeTable: (argSets) ->
@@ -961,7 +1236,7 @@ class Route
       $rows = $tbody.find('tr')
       $rows.each( (_, row) =>
         cellTexts = ($(cell).text() for cell in $(row).find('td'))
-        frameDiff = parseInt(cellTexts[1]) - parseInt(cellTexts[2])
+        frameDiff = Number(cellTexts[1]) - Number(cellTexts[2])
         
         # Frame difference
         $cell = $('<td>').text frameDiff
@@ -970,6 +1245,48 @@ class Route
         $cell = $('<td>').text (frameDiff/(60/1.001)).toFixed(2)
         $(row).append $cell
       )
+      
+      
+determineArgSets = (languageLookup) -> 
+      
+  # Build sets of text-frame-counting params/arguments from the fields
+  argSets = []
+  
+  for set in ['set1', 'set2']
+    argSet = {}
+    
+    for fieldName in ['langCode', 'character', 'boxEndTimingError']
+      $field = $("##{set}-#{fieldName}")
+      argSet[fieldName] = $field.val()
+    
+    argSet.boxEndTimingError = Number(argSet.boxEndTimingError)
+      
+    argSets.push argSet
+    
+  # Figure out suitable display names based on the argSets' differences
+  if argSets[0].langCode isnt argSets[1].langCode
+    lang1 = languageLookup[argSets[0].langCode]
+    lang2 = languageLookup[argSets[1].langCode]
+    if lang1.region isnt lang2.region
+      # Language / region
+      argSets[0].display = lang1.region
+      argSets[1].display = lang2.region
+    else
+      # Language / language name
+      argSets[0].display = lang1.language
+      argSets[1].display = lang2.language
+  else if argSets[0].character isnt argSets[1].character
+    # Character
+    char = argSets[0].character
+    argSets[0].display = char.slice(0,1).toUpperCase() + char.slice(1)
+    char = argSets[1].character
+    argSets[1].display = char.slice(0,1).toUpperCase() + char.slice(1)
+  else
+    # Box end timing error
+    argSets[0].display = argSets[0].boxEndTimingError.toString() + " BTE"
+    argSets[1].display = argSets[1].boxEndTimingError.toString() + " BTE"
+    
+  return argSets
     
 
 class Main
@@ -978,8 +1295,8 @@ class Main
   init: (itemDetails, itemMessages, messages) ->
       
     # Initialize messages.
-    for own messageId, message of messages
-      new Message(messageId, message)
+    for own messageId, data of messages
+      new Message(messageId, data)
     
     # Initialize possible route items.
     for own itemKey, details of itemDetails
@@ -994,6 +1311,9 @@ class Main
         console.log(
           "Invalid item type: " + details.type
         )
+        
+    # Build message-related lookup structures.
+    MessageUtil.buildLookups()
         
     # Look at any message to get the available languages.
     for own messageId, message of messages
@@ -1048,11 +1368,13 @@ class Main
           text = "0 (TAS)"
         $select.append $('<option>').attr('value', value).text(text)
         
-      # Initialize with the value 5.
-      $select.val("5")
+      # Initialize the value.
+      $select.val("10")
     
     # Initialize the route processing button
     document.getElementById('route-button').onclick = (event) =>
+      $('#route-status').empty()
+      
       routeText = document.getElementById('route-textarea').value
       
       category = $('#route-category').val()
@@ -1060,43 +1382,7 @@ class Main
       
       route.checkAndAddEvents()
       
-      # Build sets of text-frame-counting params/arguments from the fields
-      argSets = []
-      
-      for set in ['set1', 'set2']
-        argSet = {}
-        
-        for fieldName in ['langCode', 'character', 'boxEndTimingError']
-          $field = $("##{set}-#{fieldName}")
-          argSet[fieldName] = $field.val()
-        
-        argSet.boxEndTimingError = Number(argSet.boxEndTimingError)
-          
-        argSets.push argSet
-        
-      # Figure out suitable display names based on the argSets' differences
-      if argSets[0].langCode isnt argSets[1].langCode
-        lang1 = languageLookup[argSets[0].langCode]
-        lang2 = languageLookup[argSets[1].langCode]
-        if lang1.region isnt lang2.region
-          # Language / region
-          argSets[0].display = lang1.region
-          argSets[1].display = lang2.region
-        else
-          # Language / language name
-          argSets[0].display = lang1.language
-          argSets[1].display = lang2.language
-      else if argSets[0].character isnt argSets[1].character
-        # Character
-        char = argSets[0].character
-        argSets[0].display = char.slice(0,1).toUpperCase() + char.slice(1)
-        char = argSets[1].character
-        argSets[1].display = char.slice(0,1).toUpperCase() + char.slice(1)
-      else
-        # Box end timing error
-        argSets[0].display = argSets[0].boxEndTimingError.toString() + " BTE"
-        argSets[1].display = argSets[1].boxEndTimingError.toString() + " BTE"
-      
+      argSets = determineArgSets(languageLookup)
       route.makeTable argSets
       
       

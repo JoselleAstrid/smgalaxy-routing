@@ -5,6 +5,7 @@
 
 import argparse
 import binascii
+import collections
 import csv
 import json
 import math
@@ -702,8 +703,6 @@ def process_messages(lang_code, messages, lookup):
             m['frames_display'] = "<N/A>"
             continue
         
-        if 'text' not in box:
-            print(list(box.keys()))
         box_texts = [
             box['_placeholder']['text']
             if 'text' not in box
@@ -758,29 +757,30 @@ if __name__ == '__main__':
         message_bmg_directory = row[1]
         languages.append(dict(code=lang_code, directory=message_bmg_directory))
     
-    for language in languages:
-        
+    # messages is a dict whose entries are auto-initialized to an empty dict.
+    # Will be indexed by message id, and then by language code.
+    messages = collections.defaultdict(dict)
+    
+    for language in languages:    
         # Read this language's messages from this language's disc files
         lang_code = language['code']
         bmg_filename = os.path.join(language['directory'], 'message.bmg')
         tbl_filename = os.path.join(language['directory'], 'messageid.tbl')
         with open(bmg_filename, 'rb') as bmg, open(tbl_filename, 'rb') as tbl:
-            messages = read_messages_from_disc_files(bmg, tbl)
+            lang_messages = read_messages_from_disc_files(bmg, tbl)
             
-        # Write message data as a JS file which sets the messages in
-        # window.messages[{lang_code}]
-        msg_filename = '../messages_{code}.js'.format(code=lang_code)
-        with open(msg_filename, 'w', encoding='utf-8') as f:
-            messages_by_id = dict()
-            for m in messages:
-                messages_by_id[m['id']] = m['content']
-            f.write(
-                r"if (window.messages === undefined) {window.messages = {};}"
-                + "\nwindow.messages[{lang_code}] = {message_json};".format(
-                    lang_code=lang_code,
-                    message_json=json.dumps(messages_by_id, ensure_ascii=False),
-                )
+        # Add to the messages structure
+        for m in lang_messages:
+            messages[m['id']][lang_code] = m['content']
+            
+    # Write message data in a JS file.
+    msg_filename = '../../js/messages.js'.format(code=lang_code)
+    with open(msg_filename, 'w', encoding='utf-8') as f:
+        f.write(
+            "window.messages = {message_json};".format(
+                message_json=json.dumps(messages, ensure_ascii=False),
             )
+        )
         
     raise ValueError("Rest of this program doesn't work anymore, but will be ported")
          
