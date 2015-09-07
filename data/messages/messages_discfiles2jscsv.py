@@ -33,18 +33,25 @@ def make_lookup():
         name = row[1]
         lookup['icons'][code] = name
     
-    lookup['forced_slow'] = []
+    lookup['forcedSlow'] = []
     reader = csv.reader(open('forced-slow-messages.txt', 'r'), delimiter=',')
     for row in reader:
         message_id = row[0]
-        lookup['forced_slow'].append(message_id)
+        lookup['forcedSlow'].append(message_id)
+            
+    lookup['languageSpeeds'] = dict()
+    reader = csv.reader(open('language-speeds.txt', 'r'), delimiter=',')
+    for row in reader:
+        lang_code = row[0]
+        d = dict(alphaReq=float(row[1]), fadeRate=float(row[2]))
+        lookup['languageSpeeds'][lang_code] = d
     
-    lookup['numbers_names'] = dict()
+    lookup['numbersNames'] = dict()
     j = json.load(open('number-name-specifics.json', 'r'))
     for message_id, d in j.items():
-        lookup['numbers_names'][message_id] = d
+        lookup['numbersNames'][message_id] = d
     
-    lookup['animation_times'] = dict()
+    lookup['animationTimes'] = dict()
     line_regex = re.compile('([A-Za-z0-9_]+) = ([0-9]+)')
     with open('animation-times.txt', 'r') as lines:
         for line in lines:
@@ -64,10 +71,7 @@ def make_lookup():
                 )
             message_id = m.group(1) 
             num_of_frames = int(m.group(2))
-            lookup['animation_times'][message_id] = num_of_frames
-            
-    # This will be filled in during message processing
-    lookup['msg_in_msg'] = dict()
+            lookup['animationTimes'][message_id] = num_of_frames
     
     return lookup
     
@@ -751,7 +755,7 @@ def process_messages(lang_code, messages, lookup):
 if __name__ == '__main__':
     
     languages = []
-    reader = csv.reader(open('languages.txt', 'r'), delimiter=',')
+    reader = csv.reader(open('language-files.txt', 'r'), delimiter=',')
     for row in reader:
         lang_code = row[0]
         message_bmg_directory = row[1]
@@ -774,18 +778,29 @@ if __name__ == '__main__':
             messages[m['id']][lang_code] = m['content']
             
     # Write message data in a JS file.
-    msg_filename = '../../js/messages.js'.format(code=lang_code)
+    msg_filename = '../../js/messages.js'
     with open(msg_filename, 'w', encoding='utf-8') as f:
         f.write(
             "window.messages = {message_json};".format(
                 message_json=json.dumps(messages, ensure_ascii=False),
             )
         )
+    
+    # Make message-data lookup structure with various info (color/icon escape
+    # codes, which messages force slow speed, etc.)
+    lookup = make_lookup()
+    lookup_filename = '../../js/messagelookup.js'
+    with open(lookup_filename, 'w', encoding='utf-8') as f:
+        f.write(
+            "window.messageLookup = {lookup_json};".format(
+                lookup_json=json.dumps(lookup, ensure_ascii=False),
+            )
+        )
+    
         
     raise ValueError("Rest of this program doesn't work anymore, but will be ported")
          
     
-    lookup = make_lookup()
          
     for language in languages:
         messages[language['code']] = process_messages(

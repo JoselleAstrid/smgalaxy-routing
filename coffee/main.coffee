@@ -283,82 +283,6 @@ class Event extends Item
     
     
 class MessageUtil
-  
-  
-  @animationTimeLookup: {}
-  @colorLookup: {}
-  @forcedSlowLookup: []
-  @iconLookup: {}
-  @numberNameLookup: {}
-  
-  
-  @buildLookups: () ->
-    
-    # Animation times
-    callback = (text) ->
-      lineRegex = /([A-Za-z0-9_]+) = ([0-9]+)/
-      lines = Util.splitlines(text)
-      
-      for line in lines
-        line = line.trim()
-        
-        if line is ""
-          # Blank line
-          continue
-        else if line.startsWith('#')
-          # Comment line
-          continue
-          
-        # Should be of the form: messageId = 120
-        match = lineRegex.exec(line)
-        if not match?
-          console.log(
-            "The following animation-times line is not"
-            + "the expected format: #{line}"
-          )
-        messageId = match[1] 
-        numOfFrames = Number(match[2])
-        MessageUtil.animationTimeLookup[messageId] = numOfFrames
-    Util.readServerTextFile('data/messages/animation-times.txt', callback)
-    
-    # Colors in escape sequences
-    callback = (text) ->
-      lines = Util.splitlines(text)
-      
-      for line in lines
-        line = line.trim()
-        [code, name] = line.split(',')
-        code = Number(code)
-        MessageUtil.colorLookup[code] = name
-    Util.readServerTextFile('data/messages/color-codes.txt', callback)
-    
-    # Messages that are forced at slow speed even if you hold A
-    callback = (text) ->
-      lines = Util.splitlines(text)
-      
-      for line in lines
-        messageId = line.trim()
-        MessageUtil.forcedSlowLookup.push(messageId)
-    Util.readServerTextFile('data/messages/forced-slow-messages.txt', callback)
-    
-    # Icons in escape sequences
-    callback = (text) ->
-      lines = Util.splitlines(text)
-      
-      for line in lines
-        line = line.trim()
-        [code, name] = line.split(',')
-        code = Number(code)
-        MessageUtil.iconLookup[code] = name
-    Util.readServerTextFile('data/messages/icon-codes.txt', callback)
-    
-    # Icons in escape sequences
-    callback = (text) ->
-      json = JSON.parse(text)
-      for messageId, obj of json
-        MessageUtil.numberNameLookup[messageId] = obj
-    Util.readServerTextFile('data/messages/number-name-specifics.json', callback)
-    
     
   @hideMessageDetails: () ->
     
@@ -429,7 +353,7 @@ class MessageUtil
     else if escapeBytesStartWith [3,0]
       # Icon.
       iconByte = escapeBytes[2]
-      iconName = @iconLookup[iconByte]
+      iconName = messageLookup.icons[iconByte]
       text = "<#{iconName} icon>"
       # Any icon counts as one character.
       lastBox.chars += 1
@@ -476,8 +400,8 @@ class MessageUtil
       # that (e.g. which level a Hungry Luma is in). But we have defined the
       # text for the cases that we care about.
       
-      if messageId of @numberNameLookup
-        obj = @numberNameLookup[messageId]
+      if messageId of messageLookup.numbersNames
+        obj = messageLookup.numbersNames[messageId]
         numberNameType = obj._type
         
         if messageCase is 'general'
@@ -516,7 +440,7 @@ class MessageUtil
     else if escapeBytesStartWith [0xFF,0,0]
       # Signify start or end of text color.
       colorByte = escapeBytes[3]
-      colorType = @colorLookup[colorByte]
+      colorType = messageLookup.colors[colorByte]
       if displayColors
         text = "<#{colorType} color>"
       else
@@ -571,14 +495,8 @@ class MessageUtil
     # If a jQuery element $el is given, append an explanation of the
     # box length computation to that element.
     
-    charAlphaReq = 0.9
-    # TODO: Get the fadeRates from a language-info file.
-    if langCode == 'usenglish'
-      fadeRate = 0.4375
-    else if langCode == 'jpjapanese'
-      fadeRate = 0.35
-    else
-      console.log("Unsupported language code: #{langCode}")
+    charAlphaReq = messageLookup.languageSpeeds[langCode].alphaReq
+    fadeRate = messageLookup.languageSpeeds[langCode].fadeRate
     
     $ul = $('<ul>')
     if $el?
@@ -644,7 +562,7 @@ class MessageUtil
     if $el?
       $el.append $ul
     
-    if messageId in @forcedSlowLookup
+    if messageId in messageLookup.forcedSlow
       
       line = "Forced slow text, so 1 frame per length unit"
       $ul.append $('<li>').text(line)
@@ -722,10 +640,10 @@ class MessageUtil
       $li.append $('<span>').addClass('mid-result').text(result)
       $ul.append $li
       
-    if messageId of @animationTimeLookup
+    if messageId of messageLookup.animationTimes
       # There's a cutscene with animations that have to play out entirely before
       # advancing, even if the message is done.
-      animationTime = @animationTimeLookup[messageId]
+      animationTime = messageLookup.animationTimes[messageId]
       
       frames = Math.max(frames, animationTime)
       line = "max(..., #{animationTime} cutscene animation frames) = "
@@ -1345,16 +1263,10 @@ class Main
     # Add text aliases for possible route items.
     Action.addAliases()
         
-    # Build message-related lookup structures.
-    MessageUtil.buildLookups()
-        
-    # Look at any message to get the available languages.
-    for own messageId, message of messages
-      anyMessage = message
-      break
+    # Get info on the available languages.
     languages = []
     languageLookup = {}
-    for own langCode, data of anyMessage
+    for own langCode, _ of messageLookup.languageSpeeds
       # The first 2 chars should be the region, rest should be language.
       obj = {
         code: langCode
