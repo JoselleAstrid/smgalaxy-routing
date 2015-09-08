@@ -150,6 +150,23 @@ class Action extends Item
           aliasSubset[alias] = action
       return aliasSubset
       
+    for alias, action of getAliases((a) -> a.startsWith("bowser's "))
+      # Can omit this part
+      action.addAlias alias.replace("bowser's ", "")
+      
+    for alias, action of getAliases((a) -> a.startsWith("bowser jr.'s "))
+      # Can omit this part
+      action.addAlias alias.replace("bowser jr.'s ", "")
+        
+    # Detect single-star galaxies - easier to do this before we've added
+    # more star ending possibilities.
+    starEndings = ['1','2','3','h','g','l','c','p']
+    for alias, action of getAliases((a) -> not a.endsWith(starEndings))
+      if action instanceof Level
+        # This should be a galaxy with only one star.
+        # Accept an alias ending in " 1".
+        action.addAlias (alias + " 1")
+      
     for alias, action of getAliases((a) -> a.endsWith(" c"))
       # Add alias that replaces c with 4, or comet
       action.addAlias replaceLastChar(alias, "4")
@@ -159,6 +176,7 @@ class Action extends Item
       action.addAlias replaceLastChar(alias, "100")
       action.addAlias replaceLastChar(alias, "purples")
       action.addAlias replaceLastChar(alias, "purple coins")
+      action.addAlias replaceLastChar(alias, "purple comet")
       if alias is "gateway p"
         action.addAlias replaceLastChar(alias, "2")
       else
@@ -170,6 +188,11 @@ class Action extends Item
           
       if alias in ["battlerock l", "dusty dune g"]
         action.addAlias replaceLastChar(alias, "h2")
+        action.addAlias replaceLastChar(alias, "hidden 2")
+        action.addAlias replaceLastChar(alias, "hidden star 2")
+        action.addAlias replaceLastChar(alias, "s2")
+        action.addAlias replaceLastChar(alias, "secret 2")
+        action.addAlias replaceLastChar(alias, "secret star 2")
         action.addAlias replaceLastChar(alias, "7")
         
       if alias is "battlerock l"
@@ -178,8 +201,10 @@ class Action extends Item
     for alias, action of getAliases((a) -> a.endsWith(" h"))
       
       action.addAlias replaceLastChar(alias, "hidden")
+      action.addAlias replaceLastChar(alias, "hidden star")
       action.addAlias replaceLastChar(alias, "s")
       action.addAlias replaceLastChar(alias, "secret")
+      action.addAlias replaceLastChar(alias, "secret star")
         
       if alias is "buoy base h"
         action.addAlias replaceLastChar(alias, "2")
@@ -188,28 +213,11 @@ class Action extends Item
         
     for alias, action of getAliases((a) -> a.endsWith(" l"))
       action.addAlias replaceLastChar(alias, "luigi")
+      action.addAlias replaceLastChar(alias, "luigi star")
     
     for alias, action of getAliases((a) -> a.endsWith(" g"))
       action.addAlias replaceLastChar(alias, "green")
-      
-    for alias, action of getAliases((a) -> a.startsWith("bowser's "))
-      # Can omit this part
-      action.addAlias alias.replace("bowser's ", "")
-      
-    for alias, action of getAliases((a) -> a.startsWith("bowser jr.'s "))
-      # Can omit this part
-      action.addAlias alias.replace("bowser jr.'s ", "")
-        
-    starEndings = [
-      '1','2','3','4','5','6','7',
-      'h','hidden','s','secret',
-      'g','green','l','luigi',
-      'c','comet','p','purples','purple coins','100',
-    ]
-    for alias, action of getAliases((a) -> not a.endsWith(starEndings))
-      # This should be a galaxy with only one star.
-      # Accept an alias ending in " 1".
-      action.addAlias (alias + " 1")
+      action.addAlias replaceLastChar(alias, "green star")
       
       
   text: () ->
@@ -846,10 +854,10 @@ class Route
     # Make item recognition non-case-sensitive
     line = line.toLowerCase()
     
-    if line.startsWith "*"
+    if line.startsWith '*'
       # Assumed to be just a comment, e.g. "* Back to start of observatory"
       return 'comment'
-    if line.startsWith ">"
+    if line.startsWith '>'
       # Assumed to be an action with an exact name, e.g. "> Luigi letter 2".
       line = line.slice(1).trim()
     
@@ -1329,6 +1337,60 @@ class Main
       
       argSets = determineArgSets(languageLookup)
       route.makeTable argSets
+        
+    # Initialize help button(s)
+    $('.help-button').each( () ->
+      buttonIdRegex = /^(.+)-button$/
+      result = buttonIdRegex.exec(this.id)
+      helpTextId = result[1]
+      
+      # When this help button is clicked, open the corresponding
+      # help text in a modal window.
+      clickCallback = (helpTextId_, helpButtonE) ->
+        
+        $helpText = $('#'+helpTextId_)
+        
+        $helpText.dialog({
+          modal: true
+          width: 500
+          height: 600
+          position: {
+            my: "center top"
+            at: "center bottom"
+            of: helpButtonE
+          }
+        })
+        
+        # NOTE: The below only applies to the route textarea help, so if
+        # there's another help button at some point, then this code needs
+        # to be moved somewhere else.
+        
+        # Part of the help text involves listing all the non-level actions.
+        # The first time this help text is opened, fill the list.
+        $actionList = $('#action-list')
+        if $actionList.is(':empty')
+          for id, item of Item.idLookup
+            # Ensure we're listing non-level actions.
+            if (item instanceof Action) and not (item instanceof Level)
+              $actionList.append(
+                $('<li>').append $('<code>').text('> '+item.name)
+              )
+        
+        # Make the dialog's scroll position start at the top. If we don't do
+        # this, then it starts where the in-dialog button is, for some reason.
+        $helpText.scrollTop(0)
+        
+      $(this).click(
+        Util.curry(clickCallback, helpTextId, this)
+      )
+    )
+    
+    # Initialize fill-with-sample-route button
+    $('#sample-route-button').click( () ->
+      callback = (text) ->
+        document.getElementById('route-textarea').value = text
+      Util.readServerTextFile("sampleroute.txt", callback)
+    )
       
       
 window.main = new Main

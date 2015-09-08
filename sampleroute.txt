@@ -1,0 +1,66 @@
+01. Gateway 1
+02. Good Egg 1
+03. Good Egg 2
+04. Honeyhive 1
+05. Honeyhive 2
+06. Honeyhive 3
+07. Loopdeeloop
+08. Painting the Planet Yellow
+09. Megaleg's Moon
+10. Space Junk 1
+11. Space Junk 2
+12. Rolling Green
+13. Battlerock 1
+14. Battlerock 2 (Feed Luma though)
+15. Battlerock H (star 2's hidden star)
+16. Battlerock 3
+17. Bowser's Star Reactor
+18. Beach Bowl 1
+19. Beach Bowl 2
+20. Beach Bowl H (star 3)
+21. Ghostly 1
+> Talk to Luigi at Garage
+> Feed Terrace Hungry Luma (400 star bits)
+22. Sweet Sweet
+23. Good Egg Luigi
+24. Honeyhive Comet
+25. Beach Bowl 3
+26. Ghostly H (star 2)
+27. Beach Bowl Comet
+28. Bowser Jr.'s Airship Armada
+> Luigi letter 2
+29. Battlerock Comet
+30. Shrinking Satellite
+31. Battlerock Luigi
+32. Ghostly 2
+33. Bubble Breeze
+34. Buoy Base 1
+35. Buoy Base H (Green Star)
+36. Gusty Garden 1
+37. Gusty Garden 2
+38. Gusty Garden H (star 3)
+39. Gusty Garden 3
+40. Freezeflame 1
+41. Gusty Garden Comet
+42. Freezeflame 2
+43. Freezeflame Comet
+44. Freezeflame H (star 1)
+45. Honeyclimb
+46. Bowser's Dark Matter Plant
+47. Gold Leaf 1
+48. Gold Leaf 2
+49. Gold Leaf 3
+50. Gold Leaf H (star 2)
+51. Gold Leaf Comet
+52. Toy Time 1
+53. Toy Time H (star 2)
+54. Toy Time 2
+55. Toy Time Comet
+56. Sea Slide 1
+57. Sea Slide Comet
+58. Sea Slide 2
+> Feed Kitchen Hungry Luma (600 star bits)
+59. Drip Drop
+> Luigi letter 3
+60. Honeyhive Luigi
+61. Bowser's Galaxy Reactor

@@ -10,6 +10,11 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/jquery-ui.min.js"></script>
     
+    <link rel="stylesheet"
+          href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" type="text/css" media="screen"
+          href="main.css" />
+    
     <script src="js/itemdetails.js"></script>
     <script src="js/itemmessages.js"></script>
     <script src="js/messagelookup.js"></script>
@@ -19,17 +24,76 @@
     <script src="js/util.js"></script>
     <script src="js/main.js"></script>
     
-    <link rel="stylesheet"
-          href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
-    <link rel="stylesheet" type="text/css" media="screen"
-          href="main.css" />
-    
   </head>
   
   
   <body>
   
     <textarea id="route-textarea"></textarea>
+          
+    <button type="button" id="help-route-text-button" class="help-button">?</button>
+    <div id="help-route-text" class="long-help-text-container">
+      <div class="help-text">
+        <p>Each line of text should be one of the following:</p>
+      
+        <p>A <strong>level</strong>, such as <code>Good Egg 1</code>, or
+        <code>Honeyhive Comet</code>, or <code>Bowser's Star Reactor</code>.</p>
+        
+        <ul>
+          <li>You can use the galaxy name and star number, the star name, or both
+          with a <code>-</code> separator.
+          So for Good Egg 1, you can put <code>Good Egg 1</code>,
+          <code>Dino Piranha</code>, or <code>Good Egg 1 - Dino Piranha</code>.</li>
+          
+          <li>The galaxy name + star number for Good Egg's speedy comet is either
+          <code>Good Egg C</code>, <code>Good Egg Comet</code>, or <code>Good Egg 4</code>.</li>
+          
+          <li>For the purple comet, it can be <code>Good Egg P</code>,
+          <code>Good Egg purples</code>, <code>Good Egg purple coins</code>,
+          <code>Good Egg purple comet</code>, or <code>Good Egg 5</code>.</li>
+          
+          <li>Other accepted level endings are <code>H</code>,
+          <code>Hidden</code>, <code>Hidden Star</code>, <code>S</code>,
+          <code>Secret</code>, <code>Secret Star</code>, <code>L</code>,
+          <code>Luigi Star</code>, <code>Green</code>, and <code>Green Star</code>.</li>
+          
+          <li>You can put the star number (of the entire route) at the start
+          of a level line, like <code>9. Bowser Jr.'s Robot Reactor</code> or
+          <code>9) Bowser Jr.'s Robot Reactor</code>.
+          Your star number will simply be ignored, since the route processor
+          figures out the star number.</li>
+        
+          <li>You can put a parenthesized comment at the end of a level
+          or action line, like this: <code>Battlerock H (star 2's hidden star)</code></li>
+          
+          <li>Recognition of levels and actions is not case sensitive.</li>
+        </ul>
+        
+        <p>An <strong>action</strong>, such as <code>&gt; Feed Terrace Hungry Luma</code>,
+        or <code>&gt; Talk to Luigi at Garage</code>.</p>
+        
+        <ul>
+          <li>Actions are route items that the player must initiate
+          themselves. The cutscene after returning a Grand Star is not an action,
+          because it happens automatically after a previous route item (such as
+          Bowser's Star Reactor).</li>
+        
+          <li>To denote an action, put a <code>&gt;</code> character at the
+          start of a line.</code></li>
+          
+          <li>Here are the available actions:
+            <ul id="action-list"></ul>
+          </li>
+        </ul>
+        
+        <p>A <strong>comment</strong>. Put a <code>*</code> character at the
+        start of a line to make it a comment. Comments are just notes for
+        a person reading the route; they are not used for route processing.</p>
+        
+        <p>To fill the text box with a sample Any% route, click here:</p>
+        <button type="button" id="sample-route-button">Fill with sample route</button>
+      </div>
+    </div>
     
     <table id="argset-fields"><tbody>
       <tr>

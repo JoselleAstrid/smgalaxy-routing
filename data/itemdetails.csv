@@ -57,11 +57,11 @@ Feed Garden Hungry Luma,Action,"Melty Molten 1
 1600 star bits",,Garden Hungry Luma,,,,
 Green star 1 returned,Event,,1 green star,,Observatory start,,,
 Green star 3 returned,Event,,3 green stars,,Observatory start,,,
-Rolling Gizmo Luma,Action,Green star 3 returned,,"Rolling Gizmo Luma
+Talk to Rolling Gizmo Luma,Action,Green star 3 returned,,"Rolling Gizmo Luma
 ",,,,
-Loopdeeswoop Luma,Action,Green star 3 returned,,Loopdeswoop Luma,,,,
-Bubble Blast Luma,Action,Green star 3 returned,,Bubble Blast Luma,,,,
-Grand Finale Luma,Action,Ending (120 stars),,Grand Finale Luma,,,,
+Talk to Loopdeeswoop Luma,Action,Green star 3 returned,,Loopdeswoop Luma,,,,
+Talk to Bubble Blast Luma,Action,Green star 3 returned,,Bubble Blast Luma,,,,
+Talk to Grand Finale Luma,Action,Ending (120 stars),,Grand Finale Luma,,,,
 Good Egg 1,Level,1 star,,Terrace,,ScenarioName_EggStarGalaxy1,,
 Good Egg 2,Level,,,Terrace,,ScenarioName_EggStarGalaxy2,,
 Good Egg 3,Level,,,Terrace,,ScenarioName_EggStarGalaxy3,,
@@ -187,11 +187,11 @@ Sand Spiral,Level,Feed Engine Room Hungry Luma,,Engine Room Hungry Luma,Observat
 Matter Splatter,Level,50 stars,,Garden,,ScenarioName_DarkRoomGalaxy1,,
 Bigmouth,Level,Feed Bedroom Hungry Luma,,Bedroom Hungry Luma,Observatory start,ScenarioName_FishTunnelGalaxy1,,
 "Rolling Gizmo
-",Level,Rolling Gizmo Luma,,"Rolling Gizmo Luma
+",Level,Talk to Rolling Gizmo Luma,,"Rolling Gizmo Luma
 ",Observatory start,ScenarioName_TamakoroExLv2Galaxy1,,
-Loopdeeswoop,Level,Loopdeeswoop Luma,,Loopdeswoop Luma,Observatory start,ScenarioName_SurfingLv2Galaxy1,,
-Bubble Blast,Level,Bubble Blast Luma,,Bubble Blast Luma,Observatory start,ScenarioName_CubeBubbleExLv2Galaxy1,,
-Grand Finale,Level,Grand Finale Luma,,Grand Finale Luma,Observatory start,ScenarioName_PeachCastleFinalGalaxy1,,
+Loopdeeswoop,Level,Talk to Loopdeeswoop Luma,,Loopdeswoop Luma,Observatory start,ScenarioName_SurfingLv2Galaxy1,,
+Bubble Blast,Level,Talk to Bubble Blast Luma,,Bubble Blast Luma,Observatory start,ScenarioName_CubeBubbleExLv2Galaxy1,,
+Grand Finale,Level,Talk to Grand Finale Luma,,Grand Finale Luma,Observatory start,ScenarioName_PeachCastleFinalGalaxy1,,
 Storybook Chapter 1,Event,17 stars,,,,,,
 Storybook Chapter 2,Event,24 stars,,,,,,
 Storybook Chapter 3,Event,28 stars,,,,,,
