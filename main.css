@@ -1,5 +1,6 @@
 body {
   margin: 0;
+  min-width: 1000px;
   
   background-color: hsl(0, 0%, 7%);
   color: hsl(0, 0%, 83%);
@@ -8,10 +9,51 @@ body {
 }
 
 
+
+
+/* Sizing related stuff */
+
 #route-textarea {
-  width: 500px;
+  width: 420px;
   height: 100px;
 }
+
+#left-pane {
+  display: inline-block;
+  max-width: 600px;
+}
+
+#route-table-container {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+td.message-id-display {
+  font-size: 12.8px; font-size: 0.8rem;
+  
+  /* Allow non-whitespace word wrap on message ids */
+  word-break: break-all;
+}
+
+td.box-text {
+  /* Should be wide enough to fit a normal line of JP text */
+  width: 320px;
+}
+
+#item-details {
+  display: inline-block;
+  vertical-align: top;
+  margin-left: 20px;
+  
+  /* Should be no way for this to overflow if we allow wrapping the
+  message ids by non-whitespace. */
+  max-width: 360px;
+  
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+
 
 
 .help-text {
@@ -27,18 +69,6 @@ code {
 }
 li {
   margin: 0.5em 0; margin: 0.5rem 0;
-}
-
-
-#left-pane {
-  display: inline-block;
-  max-width: 600px;
-}
-
-
-#route-table-container {
-  max-height: 600px;
-  overflow-y: auto;
 }
 
 
@@ -65,40 +95,23 @@ td.name-event {
 }
 
 
-td.item-frames:hover, tr.message-frames:hover {
+tr.route-item:hover, td.message-frames:hover {
   background-color: hsl(0, 0%, 50%);
   cursor: pointer;
 }
-tr.message-frames.skippable {
+tr.skippable td.message-frames {
   color: hsl(0, 0%, 50%);
 }
-tr.message-frames.skippable:hover {
+tr.skippable td.message-frames:hover {
   background-color: hsl(0, 0%, 30%);
 }
 
-
-td.box-text {
-  /* Should be wide enough to fit a normal line of JP text */
-  width: 320px;
-}
 
 
 table#argset-fields {
   display: inline-block;
 }
 
-
-#item-details {
-  display: inline-block;
-  vertical-align: top;
-  margin-left: 20px;
-  
-  max-width: 400px;
-  overflow-x: auto;
-  
-  max-height: 600px;
-  overflow-y: auto;
-}
 
 #item-details div button {
   background-color: hsl(0,0%,15%);

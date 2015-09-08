@@ -52,7 +52,9 @@ class Item
     return totalFrames
     
     
-  showFrameDetails: (argSet) ->
+  showFrameDetails: (argSets) ->
+    # Show a message by message breakdown of frame counts for a particular
+    # route item.
     
     $itemDetails = $('#item-details')
     $itemDetails.empty()
@@ -61,41 +63,63 @@ class Item
     $h3 = $('<h3>').text(@name)
     $itemDetails.append $h3
     
-    # Make a box length explanations table
+    # Message by message frame breakdown table
     $table = $('<table>')
     $tbody = $('<tbody>')
     $table.append $tbody
     $itemDetails.append $table
+        
+    # Header row
+    $tr = $('<tr>')
+    $tr.append $('<td>').text "Message ID"
+    for argSet in argSets
+      $tr.append $('<td>').text argSet.display
+    $tbody.append $tr
     
     for message in @messages
-      
-      if typeof message.id is 'string'
-        messageId = message.id
-      else
-        # Only other possibility is a map from character to message id
-        messageId = message.id[argSet.character]
-      
-      messageObj = Message.idLookup[messageId]
-      data = messageObj.data[argSet.langCode]
       
       # Create a table row for the message.
       $tr = $('<tr>')
       $tbody.append $tr
       
-      # When this row is clicked, display frame details for this row's message.
-      $tr.addClass 'message-frames'
-      f = (messageObj_, argSet_, messageCase_) ->
-        messageObj_.showFrameDetails(argSet_, messageCase_)
-      $tr.click(Util.curry(f, messageObj, argSet, message.case))
-      
-      # Display message id.
+      # Display message id (or possible message ids).
       $td = $('<td>')
-      $td.text messageId
+      if typeof message.id is 'string'
+        $td.text message.id
+      else
+        # Only other possibility is a map from character to message id.
+        # If the argSets have the same character, just show that character's
+        # message id. Otherwise, show both.
+        if argSets[0].character is argSets[1].character
+          $td.text message.id[argSets[0].character]
+        else
+          $td.append document.createTextNode message.id[argSets[0].character]
+          $td.append document.createElement 'br'
+          $td.append document.createTextNode message.id[argSets[1].character]
+      
+      $td.addClass 'message-id-display'
       $tr.append $td
       
-      # Display message frames.
-      framesText = messageObj.frames(argSet, message.case)
-      $tr.append $('<td>').text(framesText)
+      for argSet in argSets
+        
+        if typeof message.id is 'string'
+          messageId = message.id
+        else
+          messageId = message.id[argSet.character]
+        
+        messageObj = Message.idLookup[messageId]
+        
+        # Display message frames.
+        framesText = messageObj.frames(argSet, message.case)
+        $td = $('<td>').text(framesText)
+        $tr.append $td
+        
+        # When this cell is clicked, display full frame details for this
+        # message + argSet.
+        $td.addClass 'message-frames'
+        f = (messageObj_, argSet_, messageCase_) ->
+          messageObj_.showFrameDetails(argSet_, messageCase_)
+        $td.click(Util.curry(f, messageObj, argSet, message.case))
       
       # Style skippable messages differently.
       if message.skippable
@@ -746,8 +770,8 @@ class Message
     $backButton.click MessageUtil.hideMessageDetails
     $messageDetails.append $backButton
     
-    # Display the message id
-    $h3 = $('<h3>').text(@id)
+    # Display the message id and argSet
+    $h3 = $('<h3>').text("#{@id}, #{argSet.display}")
     $messageDetails.append $h3
     
     # Make a box length explanations table
@@ -1144,7 +1168,16 @@ class Route
       
       $row = $('<tr>')
       $tbody.append $row
+      $row.addClass 'route-item'
       
+      # Click on a route item row -> show a frames breakdown.
+      #
+      # Currying a class function directly doesn't work,
+      # so we use an intermediate function.
+      f = (item_, argSets_) -> item_.showFrameDetails(argSets_)
+      $row.click(Util.curry(f, item, argSets))
+      
+      # Item name cell
       $cell = $('<td>')
       $cell.text itemText
       $cell.addClass item.nameCellClass
@@ -1153,15 +1186,9 @@ class Route
       for argSet, index in argSets
         frames = item.frames argSet
         
+        # Frame count cell for each argSet
         $cell = $('<td>')
         $cell.text frames
-        $cell.addClass 'item-frames'
-        
-        # Currying a class function directly doesn't work,
-        # so we use an intermediate function.
-        f = (item_, argSet_) -> item_.showFrameDetails(argSet_)
-        $cell.click(Util.curry(f, item, argSet))
-        
         $row.append $cell
         
         textFrameTotals[index] += frames
