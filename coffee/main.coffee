@@ -834,6 +834,8 @@ class Route
   # 400 star bits, etc.
   @starBitReqRegex = /^(\d+) star bits$/
   
+  isComplete: false
+  
   
   constructor: (text, category) ->
     @actions = []
@@ -979,6 +981,7 @@ class Route
   checkAndAddEvents: () ->
     # Add between-level events to the route.
     
+    @isComplete = false
     @items = []
     starCount = 0
     greenStarCount = 0
@@ -1057,6 +1060,7 @@ class Route
         }
       completedItemNames.push action.name
       if @isEndOfRoute(action, completedItemNames, starCount)
+        @isComplete = true
         return
       
       # Update Green Star count if applicable
@@ -1122,10 +1126,9 @@ class Route
         if followingItem.name of Item.followingItemsLookup
           followingItems.push(Item.followingItemsLookup[followingItem.name]...)
           
-    @addRouteStatus("Route is incomplete!")
-          
       
   makeTable: (argSets) ->
+    
     $tableContainer = $('#route-table-container')
     $table = $('<table>')
     $tableContainer.empty().append($table)
@@ -1193,19 +1196,25 @@ class Route
         
         textFrameTotals[index] += frames
         
+    if not @isComplete
+      # If the route isn't complete, don't do any totals.
+      return
+        
     # Add frame-totals row.
     
-    $row = $('<tr>')
-    $tbody.append $row
+    $totalsRow = $('<tr>')
+    $tbody.append $totalsRow
       
     $cell = $('<td>').text "Total of relative text times"
-    $row.append $cell
+    $totalsRow.append $cell
     
     for total in textFrameTotals
       $cell = $('<td>').text total
-      $row.append $cell
+      $totalsRow.append $cell
       
-    # Add differences column(s) if there are exactly two argSets.
+    # Add differences column(s) and summary sentence
+    # if there are exactly two argSets.
+    
     if argSets.length is 2
       
       # Header cells
@@ -1221,13 +1230,25 @@ class Route
         cellTexts = ($(cell).text() for cell in $(row).find('td'))
         frameDiff = Number(cellTexts[1]) - Number(cellTexts[2])
         
-        # Frame difference
+        # Frames difference
         $cell = $('<td>').text frameDiff
         $(row).append $cell
-        # Second difference
+        # Seconds difference
         $cell = $('<td>').text (frameDiff/(60/1.001)).toFixed(2)
         $(row).append $cell
       )
+      
+      # Summary sentence
+      secondsDiff = $totalsRow.find('td')[4].textContent
+      if secondsDiff.charAt(0) is '-'
+        # Negative diff
+        summary = "#{argSets[0].display} is #{secondsDiff.slice(1)} seconds
+          faster than #{argSets[1].display} for this route"
+      else
+        # Positive diff
+        summary = "#{argSets[1].display} is #{secondsDiff} seconds
+          faster than #{argSets[0].display} for this route"
+      $('#route-status').append $('<h3>').text summary
       
       
 determineArgSets = (languageLookup) -> 
@@ -1361,6 +1382,8 @@ class Main
       route = new Route(routeText, category)
       
       route.checkAndAddEvents()
+      if not route.isComplete
+        route.addRouteStatus("Route is incomplete!")
       
       argSets = determineArgSets(languageLookup)
       route.makeTable argSets
