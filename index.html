@@ -35,8 +35,8 @@
       
       <div class="vbox">
         <button style="display:block" type="button" id="help-route-text-button" class="help-button">Help</button>
-        <button style="display:block" type="button" id="sample-any-route-button">Sample Any%</button>
-        <button style="display:block" type="button" id="sample-120-route-button">Sample 120 Star</button>
+        <button style="display:block" type="button" id="sample-any-route-button" title="Fill with a sample Any% route">Sample Any%</button>
+        <button style="display:block" type="button" id="sample-120-route-button" title="Fill with a sample 120 Star route">Sample 120 Star</button>
       </div>
       
       <table id="options-table"><tbody>
@@ -85,18 +85,23 @@
     <hr/>
     
     <div id="route-status"></div>
-    <div id="left-pane">
-      <div id="route-table-container"></div>
-      <div id="message-details" style="display:none;"></div>
+    
+    <div class="hbox">
+      <div id="left-pane">
+        <div id="route-table-container"></div>
+        <div id="message-details" style="display:none;"></div>
+      </div>
+      <div id="item-details"></div>
     </div>
-    <div id="item-details"></div>
     
     
     
       
     <div id="help-route-text" class="long-help-text-container">
       <div class="help-text">
-        <p>Each line of text should be one of the following:</p>
+        <p>The first line of the text area is considered the name of your route.</p>
+        
+        <p>After that, each line of text should be one of the following:</p>
       
         <p>A <strong>level</strong>, such as <code>Good Egg 1</code>, or
         <code>Honeyhive Comet</code>, or <code>Bowser's Star Reactor</code>.</p>

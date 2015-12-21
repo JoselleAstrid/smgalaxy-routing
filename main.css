@@ -29,7 +29,6 @@ div.vbox > * {
 }
 
 #left-pane {
-  display: inline-block;
   max-width: 600px;
 }
 
@@ -51,7 +50,6 @@ td.box-text {
 }
 
 #item-details {
-  display: inline-block;
   vertical-align: top;
   margin-left: 20px;
   
