@@ -1173,8 +1173,10 @@
   Main = (function() {
     function Main() {}
 
+    Main.prototype.routeTextChanged = false;
+
     Main.prototype.init = function(itemDetails, itemMessages, messages) {
-      var $select, _, args, data, details, itemKey, j, k, l, lang, langCode, languageLookup, languages, len, len1, len2, messageId, n, num, obj, ref, ref1, ref2, ref3, set, sortFunc, text, value;
+      var $select, _, applySampleRoute, args, data, details, itemKey, j, k, l, lang, langCode, languageLookup, languages, len, len1, len2, messageId, n, num, obj, ref, ref1, ref2, ref3, set, sortFunc, text, value;
       for (messageId in messages) {
         if (!hasProp.call(messages, messageId)) continue;
         data = messages[messageId];
@@ -1307,22 +1309,30 @@
         };
         return $(this).click(Util.curry(clickCallback, helpTextId, this));
       });
-      $('#sample-any-route-button').click(function() {
-        var callback;
-        $('#route-category').val("Any%");
-        callback = function(text) {
-          return document.getElementById('route-textarea').value = text;
+      applySampleRoute = (function(_this) {
+        return function(categoryValue, sampleRouteFilename) {
+          var callback, message;
+          if (_this.routeTextChanged) {
+            message = "This'll overwrite the current route with the" + " Sample " + categoryValue + " route. Are you sure?";
+            if (!confirm(message)) {
+              return;
+            }
+            _this.routeTextChanged = false;
+          }
+          $('#route-category').val(categoryValue);
+          callback = function(text) {
+            return document.getElementById('route-textarea').value = text;
+          };
+          return Util.readServerTextFile(sampleRouteFilename, callback);
         };
-        return Util.readServerTextFile("samplerouteany.txt", callback);
-      });
-      return $('#sample-120-route-button').click(function() {
-        var callback;
-        $('#route-category').val("120 Star");
-        callback = function(text) {
-          return document.getElementById('route-textarea').value = text;
+      })(this);
+      $('#sample-any-route-button').click(Util.curry(applySampleRoute, "Any%", "samplerouteany.txt"));
+      $('#sample-120-route-button').click(Util.curry(applySampleRoute, "120 Star", "sampleroute120.txt"));
+      return $('#route-textarea').change((function(_this) {
+        return function() {
+          return _this.routeTextChanged = true;
         };
-        return Util.readServerTextFile("sampleroute120.txt", callback);
-      });
+      })(this));
     };
 
     return Main;

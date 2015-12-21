@@ -1299,6 +1299,8 @@ determineArgSets = (languageLookup) ->
 
 class Main
   
+  routeTextChanged: false
+  
     
   init: (itemDetails, itemMessages, messages) ->
       
@@ -1440,17 +1442,33 @@ class Main
     )
     
     # Initialize fill-with-sample-route buttons
-    $('#sample-any-route-button').click( () ->
-      $('#route-category').val("Any%")
+    applySampleRoute = (categoryValue, sampleRouteFilename) =>
+      if @routeTextChanged
+        message = "This'll overwrite the current route with the" \
+          + " Sample " + categoryValue + " route. Are you sure?"
+        # If user chooses yes, proceed; if chooses no, return
+        if not confirm(message)
+          return
+        # Reset the "route changed" state
+        @routeTextChanged = false
+      
+      $('#route-category').val(categoryValue)
       callback = (text) ->
         document.getElementById('route-textarea').value = text
-      Util.readServerTextFile("samplerouteany.txt", callback)
+      Util.readServerTextFile(sampleRouteFilename, callback)
+    
+    $('#sample-any-route-button').click(
+      Util.curry(applySampleRoute, "Any%", "samplerouteany.txt")
     )
-    $('#sample-120-route-button').click( () ->
-      $('#route-category').val("120 Star")
-      callback = (text) ->
-        document.getElementById('route-textarea').value = text
-      Util.readServerTextFile("sampleroute120.txt", callback)
+    $('#sample-120-route-button').click(
+      Util.curry(applySampleRoute, "120 Star", "sampleroute120.txt")
+    )
+    
+    # Watch for route text changes via typing.
+    # (Precisely: The textarea lost focus and its value changed
+    # since gaining focus.)
+    $('#route-textarea').change( () =>
+      @routeTextChanged = true
     )
       
       
