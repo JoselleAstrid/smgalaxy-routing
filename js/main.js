@@ -752,6 +752,8 @@
       var action, j, len, line, lines;
       this.actions = [];
       lines = Util.splitlines(text);
+      this.name = lines[0];
+      lines = lines.slice(1);
       $('#route-status').empty();
       for (j = 0, len = lines.length; j < len; j++) {
         line = lines[j];
@@ -771,7 +773,7 @@
       if (category === "Any%") {
         this.endItemName = "Bowser's Galaxy Reactor";
         this.endRequirements = [];
-      } else if (category === "120 star") {
+      } else if (category === "120 Star") {
         this.endItemName = "Bowser's Galaxy Reactor";
         this.endRequirements = ["120 stars"];
       }
@@ -1012,7 +1014,7 @@
       $table.append($tbody);
       $row = $('<tr>');
       $thead.append($row);
-      $row.append($('<th>').text("Level/Action/Event"));
+      $row.append($('<th>').text(this.name));
       for (j = 0, len = argSets.length; j < len; j++) {
         argSet = argSets[j];
         $row.append($('<th>').text(argSet.display));
@@ -1305,12 +1307,21 @@
         };
         return $(this).click(Util.curry(clickCallback, helpTextId, this));
       });
-      return $('#sample-route-button').click(function() {
+      $('#sample-any-route-button').click(function() {
         var callback;
+        $('#route-category').val("Any%");
         callback = function(text) {
           return document.getElementById('route-textarea').value = text;
         };
-        return Util.readServerTextFile("sampleroute.txt", callback);
+        return Util.readServerTextFile("samplerouteany.txt", callback);
+      });
+      return $('#sample-120-route-button').click(function() {
+        var callback;
+        $('#route-category').val("120 Star");
+        callback = function(text) {
+          return document.getElementById('route-textarea').value = text;
+        };
+        return Util.readServerTextFile("sampleroute120.txt", callback);
       });
     };
 

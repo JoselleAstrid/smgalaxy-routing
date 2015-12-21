@@ -843,6 +843,10 @@ class Route
     # Split text into lines
     lines = Util.splitlines(text)
     
+    # First line = route name
+    @name = lines[0]
+    lines = lines[1..]
+    
     $('#route-status').empty()
     
     for line in lines
@@ -865,7 +869,7 @@ class Route
     if category is "Any%"
       @endItemName = "Bowser's Galaxy Reactor"
       @endRequirements = []
-    else if category is "120 star"
+    else if category is "120 Star"
       @endItemName = "Bowser's Galaxy Reactor"
       @endRequirements = ["120 stars"]
       
@@ -1139,7 +1143,7 @@ class Route
     
     $row = $('<tr>')
     $thead.append $row
-    $row.append $('<th>').text("Level/Action/Event")
+    $row.append $('<th>').text(@name)
     
     for argSet in argSets
       $row.append $('<th>').text(argSet.display)
@@ -1435,11 +1439,18 @@ class Main
       )
     )
     
-    # Initialize fill-with-sample-route button
-    $('#sample-route-button').click( () ->
+    # Initialize fill-with-sample-route buttons
+    $('#sample-any-route-button').click( () ->
+      $('#route-category').val("Any%")
       callback = (text) ->
         document.getElementById('route-textarea').value = text
-      Util.readServerTextFile("sampleroute.txt", callback)
+      Util.readServerTextFile("samplerouteany.txt", callback)
+    )
+    $('#sample-120-route-button').click( () ->
+      $('#route-category').val("120 Star")
+      callback = (text) ->
+        document.getElementById('route-textarea').value = text
+      Util.readServerTextFile("sampleroute120.txt", callback)
     )
       
       

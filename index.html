@@ -29,9 +29,71 @@
   
   <body>
   
-    <textarea id="route-textarea"></textarea>
-          
-    <button type="button" id="help-route-text-button" class="help-button">?</button>
+    <div class="hbox">
+  
+      <textarea id="route-textarea" placeholder="Enter your route here"></textarea>
+      
+      <div class="vbox">
+        <button style="display:block" type="button" id="help-route-text-button" class="help-button">Help</button>
+        <button style="display:block" type="button" id="sample-any-route-button">Sample Any%</button>
+        <button style="display:block" type="button" id="sample-120-route-button">Sample 120 Star</button>
+      </div>
+      
+      <table id="options-table"><tbody>
+        <tr>
+          <td>Language</td>
+            <!-- To be filled in via JS, which has info on available languages -->
+          <td><select id="set1-langCode"></select></td>
+          <td><select id="set2-langCode"></select></td>
+        </tr>
+        <tr>
+          <td>Character</td>
+          <td>
+            <select id="set1-character">
+              <option value="mario">Mario</option>
+              <option value="luigi">Luigi</option>
+            </select>
+          </td>
+          <td>
+            <select id="set2-character">
+              <option value="mario">Mario</option>
+              <option value="luigi">Luigi</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            Frames of human<br/>timing error per box</td>
+          <td><select id="set1-boxEndTimingError"></select></td>
+          <td><select id="set2-boxEndTimingError"/></select></td>
+        </tr>
+        <tr>
+          <td>Category</td>
+          <td colspan="2">
+            <select id="route-category">
+              <option value="Any%">Any%</option>
+              <option value="120 Star">120 Star</option>
+            </select>
+          </td>
+        </tr>
+      </tbody></table>
+      
+      <button type="button" id="route-button">Go</button>
+      
+    </div>
+    
+    <hr/>
+    
+    <div id="route-status"></div>
+    <div id="left-pane">
+      <div id="route-table-container"></div>
+      <div id="message-details" style="display:none;"></div>
+    </div>
+    <div id="item-details"></div>
+    
+    
+    
+      
     <div id="help-route-text" class="long-help-text-container">
       <div class="help-text">
         <p>Each line of text should be one of the following:</p>
@@ -55,7 +117,8 @@
           <li>Other accepted level endings are <code>H</code>,
           <code>Hidden</code>, <code>Hidden Star</code>, <code>S</code>,
           <code>Secret</code>, <code>Secret Star</code>, <code>L</code>,
-          <code>Luigi Star</code>, <code>Green</code>, and <code>Green Star</code>.</li>
+          <code>Luigi</code>, <code>Luigi Star</code>, <code>G</code>,
+          <code>Green</code>, and <code>Green Star</code>.</li>
           
           <li>You can put the star number (of the entire route) at the start
           of a level line, like <code>9. Bowser Jr.'s Robot Reactor</code> or
@@ -89,57 +152,8 @@
         <p>A <strong>comment</strong>. Put a <code>*</code> character at the
         start of a line to make it a comment. Comments are just notes for
         a person reading the route; they are not used for route processing.</p>
-        
-        <p>To fill the text box with a sample Any% route, click here:</p>
-        <button type="button" id="sample-route-button">Fill with sample route</button>
       </div>
     </div>
-    
-    <table id="argset-fields"><tbody>
-      <tr>
-        <td class="argset-field-name">Language</td>
-          <!-- To be filled in via JS, which has info on available languages -->
-        <td><select id="set1-langCode"></select></td>
-        <td><select id="set2-langCode"></select></td>
-      </tr>
-      <tr>
-        <td class="argset-field-name">Character</td>
-        <td>
-          <select id="set1-character">
-            <option value="mario">Mario</option>
-            <option value="luigi">Luigi</option>
-          </select>
-        </td>
-        <td>
-          <select id="set2-character">
-            <option value="mario">Mario</option>
-            <option value="luigi">Luigi</option>
-          </select>
-        </td>
-      </tr>
-      <tr>
-        <td class="argset-field-name">
-          Frames of human<br/>timing error per box</td>
-        <td><select id="set1-boxEndTimingError"></select></td>
-        <td><select id="set2-boxEndTimingError"/></select></td>
-      </tr>
-    </tbody></table>
-    
-    <select id="route-category">
-      <option value="Any%">Any%</option>
-      <option value="120 star">120 Star</option>
-    </select>
-    
-    <button type="button" id="route-button">Go</button>
-    
-    <hr/>
-    
-    <div id="route-status"></div>
-    <div id="left-pane">
-      <div id="route-table-container"></div>
-      <div id="message-details" style="display:none;"></div>
-    </div>
-    <div id="item-details"></div>
     
     <script type="text/javascript">
       main.init(itemDetails, itemMessages, messages);

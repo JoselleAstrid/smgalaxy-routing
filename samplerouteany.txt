@@ -1,3 +1,4 @@
+1P Mario 2:39:58, WR set 2015/10/30
 01. Gateway 1
 02. Good Egg 1
 03. Good Egg 2
@@ -11,39 +12,39 @@
 11. Space Junk 2
 12. Rolling Green
 13. Battlerock 1
-14. Battlerock 2 (Feed Luma though)
-15. Battlerock H (star 2's hidden star)
-16. Battlerock 3
-17. Bowser's Star Reactor
-18. Beach Bowl 1
-19. Beach Bowl 2
-20. Beach Bowl H (star 3)
+14. Battlerock 2
+15. Battlerock 3
+16. Bowser's Star Reactor
+17. Beach Bowl 1
+18. Beach Bowl 2
+19. Beach Bowl H (star 3)
+20. Beach Bowl 3
 21. Ghostly 1
 > Talk to Luigi at Garage
 > Feed Terrace Hungry Luma (400 star bits)
 22. Sweet Sweet
 23. Good Egg Luigi
 24. Honeyhive Comet
-25. Beach Bowl 3
-26. Ghostly H (star 2)
-27. Beach Bowl Comet
+25. Beach Bowl Comet
+26. Bubble Breeze
+27. Ghostly H (star 2)
 28. Bowser Jr.'s Airship Armada
 > Luigi letter 2
 29. Battlerock Comet
 30. Shrinking Satellite
 31. Battlerock Luigi
 32. Ghostly 2
-33. Bubble Breeze
-34. Buoy Base 1
-35. Buoy Base H (Green Star)
-36. Gusty Garden 1
-37. Gusty Garden 2
-38. Gusty Garden H (star 3)
-39. Gusty Garden 3
+33. Buoy Base 1
+34. Buoy Base H (Green Star)
+35. Gusty Garden 1
+36. Gusty Garden 2
+37. Gusty Garden H (star 3)
+38. Gusty Garden 3
+39. Gusty Garden Comet
 40. Freezeflame 1
-41. Gusty Garden Comet
+41. Freezeflame Comet
 42. Freezeflame 2
-43. Freezeflame Comet
+43. Freezeflame 3
 44. Freezeflame H (star 1)
 45. Honeyclimb
 46. Bowser's Dark Matter Plant
@@ -52,13 +53,13 @@
 49. Gold Leaf 3
 50. Gold Leaf H (star 2)
 51. Gold Leaf Comet
-52. Toy Time 1
-53. Toy Time H (star 2)
-54. Toy Time 2
-55. Toy Time Comet
-56. Sea Slide 1
-57. Sea Slide Comet
-58. Sea Slide 2
+52. Sea Slide 1
+53. Sea Slide Comet
+54. Sea Slide 2
+55. Toy Time 1
+56. Toy Time H (star 2)
+57. Toy Time Comet
+58. Toy Time 2
 > Feed Kitchen Hungry Luma (600 star bits)
 59. Drip Drop
 > Luigi letter 3

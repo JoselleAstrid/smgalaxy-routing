@@ -10,12 +10,22 @@ body {
 
 
 
+/* Horizontal layout box, vertical layout box */
+
+div.hbox > * {
+  display: inline-block;
+}
+div.vbox > * {
+  display: block;
+}
+
+
 
 /* Sizing related stuff */
 
 #route-textarea {
   width: 420px;
-  height: 100px;
+  height: 135px;
 }
 
 #left-pane {
@@ -52,7 +62,6 @@ td.box-text {
   max-height: 600px;
   overflow-y: auto;
 }
-
 
 
 
@@ -104,12 +113,6 @@ tr.skippable td.message-frames {
 }
 tr.skippable td.message-frames:hover {
   background-color: hsl(0, 0%, 30%);
-}
-
-
-
-table#argset-fields {
-  display: inline-block;
 }
 
 
