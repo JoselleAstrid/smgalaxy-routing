@@ -464,7 +464,9 @@ def read_messages_from_disc_files(bmg, tbl):
         item_bytes = bytearray(bmg.read(inf1_item_size))
         messages[i]['content_offset'] = \
             struct.unpack('>I', item_bytes[:4])[0]
-    blank_bytes = bmg.read(16)
+    # Read blank bytes at the end of the INF1 section.
+    num_blank_bytes = inf1_section_size - 16 - inf1_num_messages*inf1_item_size
+    blank_bytes = bmg.read(num_blank_bytes)
     
     # Read bmg's DAT1 section.
     dat1_magic_constant = bmg.read(4)

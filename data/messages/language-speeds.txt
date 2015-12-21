@@ -4,6 +4,7 @@ eufrench,0.9,0.4375
 eugerman,0.9,0.4375
 euitalian,0.9,0.4375
 euspanish,0.9,0.4375
+krkorean,0.9,0.4375
 jpjapanese,0.9,0.35
 usenglish,0.9,0.4375
 usfrench,0.9,0.4375
