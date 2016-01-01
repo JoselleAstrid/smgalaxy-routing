@@ -106,7 +106,7 @@ tr.route-item:hover, td.message-frames:hover {
   background-color: hsl(0, 0%, 50%);
   cursor: pointer;
 }
-tr.skippable td.message-frames {
+tr.skippable td {
   color: hsl(0, 0%, 50%);
 }
 tr.skippable td.message-frames:hover {
