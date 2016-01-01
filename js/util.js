@@ -23,6 +23,15 @@
       };
     };
 
+    Util.readServerJSFile = function(filepath, callback) {
+      return $.ajax({
+        url: filepath,
+        type: 'GET',
+        dataType: 'script',
+        success: callback
+      });
+    };
+
     Util.readServerTextFile = function(filepath, callback) {
       return $.ajax({
         url: filepath,

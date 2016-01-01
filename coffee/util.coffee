@@ -23,9 +23,20 @@ class Util
       return fn.apply(this, arguments)
       
       
+  @readServerJSFile: (filepath, callback) ->
+    # Read a JS file from the server.
+    # Same as any old Ajax call, but still nice to have a wrapper.
+    
+    $.ajax({
+      url: filepath
+      type: 'GET'
+      dataType: 'script'
+      success: callback
+    })
+      
+      
   @readServerTextFile: (filepath, callback) ->
-    # Read a text file that's local to the server. Same as any
-    # old Ajax call, but still nice to have a wrapper.
+    # Read a text file that's local to the server.
     #
     # To make this work with Chrome in development, be careful with your
     # server setup. Serving your directory with Python is one way that works.

@@ -43,7 +43,7 @@ class Item
         # message id is character.
         id = id[argSet.character]
       
-      m = Message.idLookup[id]
+      m = Message.lookup(id, argSet.langCode)
       
       messageFrames = m.frames(argSet, message.case)
         
@@ -107,7 +107,7 @@ class Item
         else
           messageId = message.id[argSet.character]
         
-        messageObj = Message.idLookup[messageId]
+        messageObj = Message.lookup(messageId, argSet.langCode)
         
         # Display message frames.
         framesText = messageObj.frames(argSet, message.case)
@@ -270,7 +270,8 @@ class Level extends Action
       @nameCellClass = 'name-level-comet'
       
     # Add to starNameLookup.
-    # Note: This requires messages to be initialized before levels.
+    # Note: This requires usenglish messages to be initialized
+    # before levels are initialized.
     
     # We could accept star names in other languages besides usenglish, but
     # this would only make sense if galaxy names, event names, etc. were
@@ -285,7 +286,7 @@ class Level extends Action
   starName: (langCode, character) ->
     argSet = {character: character, langCode: langCode}
     # Assume a star name message only has 1 box.
-    box = Message.idLookup[@starNameId].computeBoxes(argSet, null)[0]
+    box = Message.lookup(@starNameId, langCode).computeBoxes(argSet, null)[0]
     return box.text
         
       
@@ -407,7 +408,7 @@ class MessageUtil
         else if argSet.character is 'luigi'
           textMessageId = 'System_PlayerName100'
           
-        textMessage = Message.idLookup[textMessageId]
+        textMessage = Message.lookup(textMessageId, argSet.langCode)
         text = textMessage.computeBoxes(argSet, messageCase)[0].text
         lastBox.chars += text.length
         
@@ -422,7 +423,7 @@ class MessageUtil
         else if argSet.character is 'luigi'
           textMessageId = 'System_PlayerName101'
           
-        textMessage = Message.idLookup[textMessageId]
+        textMessage = Message.lookup(textMessageId, argSet.langCode)
         text = textMessage.computeBoxes(argSet, messageCase)[0].text
         lastBox.chars += text.length
         
@@ -453,7 +454,7 @@ class MessageUtil
           else if argSet.character of obj
             textMessageId = obj[argSet.character]
       
-          textMessage = Message.idLookup[textMessageId]
+          textMessage = Message.lookup(textMessageId, argSet.langCode)
           text = textMessage.computeBoxes(argSet, messageCase)[0].text
           lastBox.chars += text.length
             
@@ -696,22 +697,26 @@ class MessageUtil
 
 class Message
   
-  @idLookup: {}
+  @lookupStructure: {}
   
-  constructor: (@id, @data) ->
-    @constructor.idLookup[@id] = this
+  constructor: (@id, @langCode, @data) ->
+    # Index into the look up as [idGoesHere/langCodeGoesHere].
+    # Assumes there are no slashes in message ids or language codes.
+    @constructor.lookupStructure["#{@id}/#{@langCode}"] = this
+    
+    
+  @lookup: (id, langCode) ->
+    return @lookupStructure["#{id}/#{langCode}"]
     
     
   computeBoxes: (argSet, messageCase) ->
     
-    content = @data[argSet.langCode]
-    
-    # TODO: Handle content == null
-    # TODO: Handle content == []
+    # TODO: Handle @data == null
+    # TODO: Handle @data == []
     
     boxes = [{chars: 0, text: ""}]
     
-    for item in content
+    for item in @data
       
       # An item could be a box break which changes the last box, so
       # re-set this after every item.
@@ -760,7 +765,6 @@ class Message
     
   showFrameDetails: (argSet, messageCase) ->
     
-    data = @data[argSet.langCode]
     $messageDetails = $('#message-details')
     $messageDetails.empty()
     
@@ -913,7 +917,7 @@ class Route
       
     # Check for just the star name
     if line of Level.starNameLookup
-      return Level.starNameLookup[line.toLowerCase()]
+      return Level.starNameLookup[line]
       
     # Check if there's a dash, and if so, see if we can find a
     # galaxy+number - starname match like "Good Egg 1 - Dino Piranha".
@@ -928,7 +932,7 @@ class Route
       if possibleGalaxyAndNum of Action.aliases
         return Action.aliases[possibleGalaxyAndNum]
       
-      possibleStarName = line.slice(indexOfDash+1).trim().toLowerCase()
+      possibleStarName = line.slice(indexOfDash+1).trim()
       if possibleStarName of Level.starNameLookup
         return Level.starNameLookup[possibleStarName]
       
@@ -1295,6 +1299,46 @@ determineArgSets = (languageLookup) ->
     argSets[1].display = argSets[1].boxEndTimingError.toString() + " BTE"
     
   return argSets
+  
+  
+addLanguages = (langCodes, callbackAfterInitAllLanguages) ->
+  
+  # If all requested languages are already loaded, call the passed callback
+  # and we're done
+  allLanguagesLoaded = langCodes.every(
+    (code) -> return (window.messages? and code of window.messages)
+  )
+  if allLanguagesLoaded
+    do callbackAfterInitAllLanguages
+    return
+  
+  # Else, we must load at least 1 language first
+  for langCode in langCodes
+    
+    # If we've already loaded this language, move onto the next one
+    if window.messages? and langCode of window.messages
+      continue
+    
+    # Callback that runs when this language is loaded
+    cb = (langCode_, langCodes_, callbackAfterInitAllLanguages_) ->
+      # Initialize messages for this language
+      for own messageId, data of window.messages[langCode_]
+        new Message(messageId, langCode_, data)
+      # Check if ALL requested languages are loaded (not just this one)
+      allLanguagesLoaded = langCodes_.every(
+        (code) -> return (code of window.messages)
+      )
+      if allLanguagesLoaded
+        # Call the passed callback
+        do callbackAfterInitAllLanguages_
+      
+    # Load this language
+    callbackAfterLoadingLanguage = Util.curry(
+      cb, langCode, langCodes, callbackAfterInitAllLanguages
+    )
+    Util.readServerJSFile(
+      "js/messages/#{langCode}.js", callbackAfterLoadingLanguage
+    )
     
 
 class Main
@@ -1302,11 +1346,12 @@ class Main
   routeTextChanged: false
   
     
-  init: (itemDetails, itemMessages, messages) ->
-      
-    # Initialize messages.
-    for own messageId, data of messages
-      new Message(messageId, data)
+  init: (itemDetails, itemMessages) ->
+    
+    callback = Util.curry(@init2, itemDetails, itemMessages)
+    addLanguages(['usenglish'], callback)
+    
+  init2: (itemDetails, itemMessages) ->
     
     # Initialize possible route items.
     for own itemKey, details of itemDetails
@@ -1392,7 +1437,11 @@ class Main
         route.addRouteStatus("Route is incomplete!")
       
       argSets = determineArgSets(languageLookup)
-      route.makeTable argSets
+      
+      # Get the required languages, then make the route table
+      callback = () -> route.makeTable argSets
+      addLanguages((argSet.langCode for argSet in argSets), callback)
+      
         
     # Initialize help button(s)
     $('.help-button').each( () ->

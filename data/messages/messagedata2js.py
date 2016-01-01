@@ -767,26 +767,35 @@ if __name__ == '__main__':
     # Will be indexed by message id, and then by language code.
     messages = collections.defaultdict(dict)
     
-    for language in languages:    
+    for language in languages:
+        
+        messages = dict()
+        
         # Read this language's messages from this language's disc files
         lang_code = language['code']
         bmg_filename = os.path.join(language['directory'], 'message.bmg')
         tbl_filename = os.path.join(language['directory'], 'messageid.tbl')
         with open(bmg_filename, 'rb') as bmg, open(tbl_filename, 'rb') as tbl:
-            lang_messages = read_messages_from_disc_files(bmg, tbl)
+            messages_list = read_messages_from_disc_files(bmg, tbl)
             
-        # Add to the messages structure
-        for m in lang_messages:
-            messages[m['id']][lang_code] = m['content']
+        for m in messages_list:
+            messages[m['id']] = m['content']
             
-    # Write message data in a JS file.
-    msg_filename = '../../js/messages.js'
-    with open(msg_filename, 'w', encoding='utf-8') as f:
-        f.write(
-            "window.messages = {message_json};".format(
-                message_json=json.dumps(messages, ensure_ascii=False),
+        # Write message data in a JS file.
+        msg_filename = '../../js/messages/{code}.js'.format(code=lang_code)
+        # Make necessary directories if they don't exist. 
+        os.makedirs(os.path.dirname(msg_filename), exist_ok=True)
+        with open(msg_filename, 'w', encoding='utf-8') as f:
+            f.write(
+                r"if (window.messages === undefined) {window.messages = {};}"
             )
-        )
+            f.write("\n")
+            f.write(
+                "window.messages.{code} = {message_json};".format(
+                    code=lang_code,
+                    message_json=json.dumps(messages, ensure_ascii=False),
+                )
+            )
     
     # Make message-data lookup structure with various info (color/icon escape
     # codes, which messages force slow speed, etc.)
