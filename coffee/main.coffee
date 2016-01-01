@@ -427,7 +427,7 @@ class MessageUtil
         text = textMessage.computeBoxes(argSet, messageCase)[0].text
         lastBox.chars += text.length
         
-    else if escapeBytesStartWith [6] or escapeBytesStartWith [7]
+    else if (escapeBytesStartWith [6]) or (escapeBytesStartWith [7])
       # A number or name variable.
       # The actual text is message dependent, or even case dependent beyond
       # that (e.g. which level a Hungry Luma is in). But we have defined the

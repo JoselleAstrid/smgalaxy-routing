@@ -425,7 +425,7 @@
           text = textMessage.computeBoxes(argSet, messageCase)[0].text;
           lastBox.chars += text.length;
         }
-      } else if (escapeBytesStartWith([6] || escapeBytesStartWith([7]))) {
+      } else if ((escapeBytesStartWith([6])) || (escapeBytesStartWith([7]))) {
         if (messageId in messageLookup.numbersNames) {
           obj = messageLookup.numbersNames[messageId];
           numberNameType = obj._type;
