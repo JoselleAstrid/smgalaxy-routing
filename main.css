@@ -1,7 +1,4 @@
 body {
-  margin: 0;
-  min-width: 1000px;
-  
   background-color: hsl(0, 0%, 7%);
   color: hsl(0, 0%, 83%);
   
@@ -19,21 +16,63 @@ div.vbox > * {
   display: block;
 }
 
+div.hbox.with-dividers > *:not(:first-child) {
+  border-left: solid gray 2px;
+}
+div.vbox.with-dividers > *:not(:first-child) {
+  border-top: solid gray 2px;
+}
+div.hbox.padded > * {
+  /* top/bottom left/right */
+  padding: 0 15px;
+}
+
 
 
 /* Sizing related stuff */
+
+body {
+  margin: 0;
+  
+  width: 1000px;
+}
+
+#top-row {
+  /* Fixed height, to make it easier to end #main-row at a specific spot */
+  height: 150px;
+  
+  margin-left: 5px;
+}
 
 #route-textarea {
   width: 420px;
   height: 135px;
 }
 
-#left-pane {
-  max-width: 600px;
+#main-row {
+  /* Absolute positioning just below #top-row, and ending close to the
+  bottom. (If bottom is 0px, then we get an unnecessary vertical scrollbar) */
+  position: absolute;
+  top: 150px;
+  bottom: 4px;
+  
+  /* Need to re-specify width, probably due to absolute positioning */
+  width: 1000px;
 }
 
-#route-table-container {
-  max-height: 600px;
+#left-pane {
+  width: 600px;
+  
+  height: 100%;
+  overflow-y: auto;
+}
+
+#item-details {
+  /* Should be no way for this to overflow if we allow wrapping the
+  message ids by non-whitespace. */
+  width: 320px;
+  
+  height: 100%;
   overflow-y: auto;
 }
 
@@ -47,18 +86,6 @@ td.message-id-display {
 td.box-text {
   /* Should be wide enough to fit a normal line of JP text */
   width: 320px;
-}
-
-#item-details {
-  vertical-align: top;
-  margin-left: 20px;
-  
-  /* Should be no way for this to overflow if we allow wrapping the
-  message ids by non-whitespace. */
-  max-width: 360px;
-  
-  max-height: 600px;
-  overflow-y: auto;
 }
 
 

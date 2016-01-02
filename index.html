@@ -28,69 +28,71 @@
   
   <body>
   
-    <div class="hbox">
+    <div id="main-container" class="vbox with-dividers">
   
-      <textarea id="route-textarea" placeholder="Enter your route here"></textarea>
-      
-      <div class="vbox">
-        <button style="display:block" type="button" id="help-route-text-button" class="help-button">Help</button>
-        <button style="display:block" type="button" id="sample-any-route-button" title="Fill with a sample Any% route">Sample Any%</button>
-        <button style="display:block" type="button" id="sample-120-route-button" title="Fill with a sample 120 Star route">Sample 120 Star</button>
+      <div id="top-row" class="hbox">
+    
+        <textarea id="route-textarea" placeholder="Enter your route here"></textarea>
+        
+        <div class="vbox">
+          <button style="display:block" type="button" id="help-route-text-button" class="help-button">Help</button>
+          <button style="display:block" type="button" id="sample-any-route-button" title="Fill with a sample Any% route">Sample Any%</button>
+          <button style="display:block" type="button" id="sample-120-route-button" title="Fill with a sample 120 Star route">Sample 120 Star</button>
+        </div>
+        
+        <table id="options-table"><tbody>
+          <tr>
+            <td>Language</td>
+              <!-- To be filled in via JS, which has info on available languages -->
+            <td><select id="set1-langCode"></select></td>
+            <td><select id="set2-langCode"></select></td>
+          </tr>
+          <tr>
+            <td>Character</td>
+            <td>
+              <select id="set1-character">
+                <option value="mario">Mario</option>
+                <option value="luigi">Luigi</option>
+              </select>
+            </td>
+            <td>
+              <select id="set2-character">
+                <option value="mario">Mario</option>
+                <option value="luigi">Luigi</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Frames of human<br/>timing error per box</td>
+            <td><select id="set1-boxEndTimingError"></select></td>
+            <td><select id="set2-boxEndTimingError"/></select></td>
+          </tr>
+          <tr>
+            <td>Category</td>
+            <td colspan="2">
+              <select id="route-category">
+                <option value="Any%">Any%</option>
+                <option value="120 Star">120 Star</option>
+              </select>
+            </td>
+          </tr>
+        </tbody></table>
+        
+        <button type="button" id="route-button">Go</button>
+        
       </div>
       
-      <table id="options-table"><tbody>
-        <tr>
-          <td>Language</td>
-            <!-- To be filled in via JS, which has info on available languages -->
-          <td><select id="set1-langCode"></select></td>
-          <td><select id="set2-langCode"></select></td>
-        </tr>
-        <tr>
-          <td>Character</td>
-          <td>
-            <select id="set1-character">
-              <option value="mario">Mario</option>
-              <option value="luigi">Luigi</option>
-            </select>
-          </td>
-          <td>
-            <select id="set2-character">
-              <option value="mario">Mario</option>
-              <option value="luigi">Luigi</option>
-            </select>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            Frames of human<br/>timing error per box</td>
-          <td><select id="set1-boxEndTimingError"></select></td>
-          <td><select id="set2-boxEndTimingError"/></select></td>
-        </tr>
-        <tr>
-          <td>Category</td>
-          <td colspan="2">
-            <select id="route-category">
-              <option value="Any%">Any%</option>
-              <option value="120 Star">120 Star</option>
-            </select>
-          </td>
-        </tr>
-      </tbody></table>
-      
-      <button type="button" id="route-button">Go</button>
-      
-    </div>
-    
-    <hr/>
-    
-    <div id="route-status"></div>
-    
-    <div class="hbox">
-      <div id="left-pane">
-        <div id="route-table-container"></div>
-        <div id="message-details" style="display:none;"></div>
+      <div id="main-row" class="hbox with-dividers padded">
+        <div id="left-pane">
+          <div id="route-status"></div>
+          <div id="route-table-container"></div>
+          <div id="message-details" style="display:none;"></div>
+        </div>
+        
+        <div id="item-details"></div>
       </div>
-      <div id="item-details"></div>
+    
     </div>
     
     
